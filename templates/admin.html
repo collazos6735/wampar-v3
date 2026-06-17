@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Wampar Sport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin:0; padding:0; background:#0b1220; font-family:'Montserrat',sans-serif; }
+        /* TOPBAR */
+        .topbar { background:#07111f; height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 30px; border-bottom:1px solid rgba(6,182,212,0.2); position:fixed; top:0; left:0; right:0; z-index:100; }
+        .topbar-logo { display:flex; align-items:center; gap:12px; }
+        .topbar-logo img { height:45px; }
+        .topbar-logo span { font-family:'Bangers'; font-size:1.3rem; color:#f97316; letter-spacing:2px; }
+        .btn-salir { background:#ef4444; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-weight:800; cursor:pointer; transition:0.3s; }
+        .btn-salir:hover { background:#dc2626; }
+        /* SIDEBAR */
+        .sidebar { position:fixed; top:65px; left:0; bottom:0; width:220px; background:#07111f; border-right:1px solid rgba(6,182,212,0.15); padding:20px 0; }
+        .sidebar-btn { display:flex; align-items:center; gap:12px; width:100%; background:none; border:none; color:#9ca3af; padding:14px 25px; font-family:'Montserrat'; font-weight:700; font-size:0.92rem; cursor:pointer; transition:0.3s; text-align:left; position:relative; }
+        .sidebar-btn:hover { background:rgba(6,182,212,0.1); color:#fff; }
+        .sidebar-btn.active { background:rgba(249,115,22,0.15); color:#f97316; border-left:3px solid #f97316; }
+        .sidebar-btn .icono { font-size:1.2rem; }
+        .sidebar-notif { background:#ef4444; color:#fff; border-radius:50%; width:20px; height:20px; font-size:0.65rem; display:flex; align-items:center; justify-content:center; font-weight:900; margin-left:auto; }
+        /* CONTENIDO */
+        .main-content { margin-left:220px; margin-top:65px; padding:30px; min-height:calc(100vh - 65px); }
+        .seccion { display:none; }
+        .seccion.active { display:block; }
+        /* CARDS STATS */
+        .stat-card { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; padding:20px; text-align:center; }
+        .stat-card .numero { font-size:2.5rem; font-weight:900; font-family:'Bangers'; letter-spacing:1px; }
+        .stat-card .etiqueta { color:#9ca3af; font-size:0.85rem; font-weight:600; margin-top:5px; }
+        /* TABLAS */
+        .admin-tabla { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; overflow:hidden; }
+        .admin-tabla table { width:100%; border-collapse:collapse; }
+        .admin-tabla th { background:#0b1220; color:#06b6d4; padding:12px 16px; font-weight:700; font-size:0.85rem; text-transform:uppercase; }
+        .admin-tabla td { padding:12px 16px; color:#e5e7eb; border-top:1px solid rgba(255,255,255,0.05); font-size:0.9rem; }
+        .admin-tabla tr:hover td { background:rgba(6,182,212,0.05); }
+        /* INPUTS ADMIN */
+        .inp-admin { background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px 14px; width:100%; font-family:'Montserrat'; margin-bottom:10px; }
+        .inp-admin:focus { outline:none; border-color:#06b6d4; }
+        /* BOTONES */
+        .btn-buscar  { background:#06b6d4; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
+        .btn-mod     { background:#f97316; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
+        .btn-del     { background:#ef4444; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
+        .btn-msg     { background:#8b5cf6; color:#fff; border:none; border-radius:8px; padding:7px 14px; font-weight:700; cursor:pointer; font-size:0.82rem; transition:0.3s; }
+        .btn-buscar:hover { background:#0891b2; }
+        .btn-mod:hover    { background:#ea580c; }
+        .btn-del:hover    { background:#dc2626; }
+        .btn-msg:hover    { background:#7c3aed; }
+        /* MENSAJES */
+        .msg-admin-ok    { background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.4); color:#67e8f9; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.88rem; display:none; }
+        .msg-admin-error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.88rem; display:none; }
+        /* CHAT ADMIN */
+        .usuarios-lista { height:400px; overflow-y:auto; border-right:1px solid rgba(255,255,255,0.08); }
+        .usuario-chat-item { padding:14px 16px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); transition:0.2s; display:flex; align-items:center; gap:10px; }
+        .usuario-chat-item:hover, .usuario-chat-item.active { background:rgba(6,182,212,0.1); }
+        .usuario-avatar { width:40px; height:40px; background:linear-gradient(135deg,#f97316,#06b6d4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff; font-size:1rem; flex-shrink:0; }
+        .usuario-chat-item h6 { margin:0; color:#fff; font-size:0.9rem; }
+        .usuario-chat-item small { color:#9ca3af; font-size:0.78rem; }
+        .chat-panel { height:400px; display:flex; flex-direction:column; }
+        .chat-mensajes { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; }
+        .chat-sin-seleccion { display:flex; align-items:center; justify-content:center; height:100%; color:#4b5563; text-align:center; }
+        .msg-burbuja { max-width:70%; padding:10px 14px; border-radius:12px; font-size:0.88rem; line-height:1.5; }
+        .msg-admin-out { background:#f97316; color:#fff; align-self:flex-end; border-radius:12px 12px 4px 12px; }
+        .msg-user-in  { background:#1e293b; color:#e5e7eb; align-self:flex-start; border-radius:12px 12px 12px 4px; }
+        .msg-fecha-chat { font-size:0.7rem; opacity:0.6; margin-top:3px; }
+        .chat-input-area { padding:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px; }
+        .chat-input-area textarea { flex:1; background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px; font-family:'Montserrat'; font-size:0.88rem; resize:none; }
+        .chat-input-area textarea:focus { outline:none; border-color:#06b6d4; }
+        .btn-send { background:#f97316; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-weight:800; cursor:pointer; }
+        /* GRAFICAS */
+        .chart-card { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; padding:20px; }
+        .chart-card h6 { color:#06b6d4; font-weight:900; margin-bottom:15px; text-transform:uppercase; font-size:0.85rem; letter-spacing:1px; }
+        /* TITULO SECCION */
+        .seccion-titulo { font-family:'Bangers'; color:#f97316; font-size:2rem; letter-spacing:2px; margin-bottom:25px; }
+        /* BADGE NUEVO */
+        .badge-nuevo { background:#ef4444; color:#fff; border-radius:10px; padding:2px 8px; font-size:0.7rem; font-weight:900; margin-left:6px; }
+    </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <div class="topbar-logo">
+        <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo">
+        <span>Panel Admin</span>
+    </div>
+    <a href="{{ url_for('logout') }}"><button class="btn-salir">Cerrar sesión</button></a>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <button class="sidebar-btn active" onclick="mostrarSeccion('usuarios')" id="btn-usuarios">
+        <span class="icono">👥</span> Usuarios Registrados
+    </button>
+    <button class="sidebar-btn" onclick="mostrarSeccion('carrito')" id="btn-carrito">
+        <span class="icono">🛒</span> Carrito de Compras
+    </button>
+    <button class="sidebar-btn" onclick="mostrarSeccion('mensajes')" id="btn-mensajes">
+        <span class="icono">💬</span> Mensajes
+        {% if notif_admin > 0 %}
+        <span class="sidebar-notif" id="notifSidebar">{{ notif_admin }}</span>
+        {% else %}
+        <span class="sidebar-notif" id="notifSidebar" style="display:none">0</span>
+        {% endif %}
+    </button>
+    <button class="sidebar-btn" onclick="mostrarSeccion('dashboard')" id="btn-dashboard">
+        <span class="icono">📊</span> Dashboard
+    </button>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div class="main-content">
+
+    <!-- ══ USUARIOS ══════════════════════════════════════════ -->
+    <div class="seccion active" id="sec-usuarios">
+        <h2 class="seccion-titulo">👥 Usuarios Registrados</h2>
+
+        <!-- Herramientas -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-8">
+                <div class="admin-tabla p-3">
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" id="uCorreo" class="inp-admin" placeholder="Correo del usuario">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="uNombre" class="inp-admin" placeholder="Nuevo nombre">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="password" id="uPassword" class="inp-admin" placeholder="Nueva contraseña">
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button class="btn-buscar" onclick="accionUsuario('buscar')">🔍 Buscar</button>
+                        <button class="btn-mod"    onclick="accionUsuario('modificar')">✏️ Modificar</button>
+                        <button class="btn-del"    onclick="accionUsuario('eliminar')">🗑️ Eliminar</button>
+                    </div>
+                    <div id="msgUsuario" class="msg-admin-ok"></div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="numero" style="color:#06b6d4;">{{ usuarios|length }}</div>
+                    <div class="etiqueta">Total de usuarios registrados</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla usuarios -->
+        <div class="admin-tabla">
+            <table>
+                <thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Registro</th><th>Acción</th></tr></thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td style="color:#4b5563;">{{ loop.index }}</td>
+                        <td><strong>{{ u.nombre }}</strong></td>
+                        <td style="color:#06b6d4;">{{ u.correo }}</td>
+                        <td style="color:#9ca3af;">{{ u.fecha }}</td>
+                        <td>
+                            <button class="btn-msg" onclick="irAMensaje('{{ u.correo }}', '{{ u.nombre }}')">💬 Mensaje</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" style="text-align:center; color:#4b5563; padding:30px;">No hay usuarios registrados aún.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══ CARRITO ══════════════════════════════════════════ -->
+    <div class="seccion" id="sec-carrito">
+        <h2 class="seccion-titulo">🛒 Carrito de Compras</h2>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="numero" style="color:#f97316;">{{ carrito|length }}</div>
+                    <div class="etiqueta">Productos en carritos</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="numero" style="color:#06b6d4;">
+                        S/ {{ carrito | sum(attribute='precio') | int }}
+                    </div>
+                    <div class="etiqueta">Valor total en carritos</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="numero" style="color:#8b5cf6;">
+                        {{ carrito | map(attribute='correo') | list | unique | list | length }}
+                    </div>
+                    <div class="etiqueta">Clientes con productos</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-tabla">
+            <table>
+                <thead><tr><th>Cliente</th><th>Correo</th><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th>Acción</th></tr></thead>
+                <tbody>
+                    {% for item in carrito %}
+                    <tr>
+                        <td><strong>{{ item.nombre }}</strong></td>
+                        <td style="color:#06b6d4;">{{ item.correo }}</td>
+                        <td>{{ item.producto }}</td>
+                        <td style="color:#f97316;">S/ {{ item.precio }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td style="color:#10b981; font-weight:700;">S/ {{ item.precio * item.cantidad }}</td>
+                        <td>
+                            <button class="btn-msg" onclick="irAMensaje('{{ item.correo }}', '{{ item.nombre }}')">💬 Consultar</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" style="text-align:center; color:#4b5563; padding:30px;">No hay productos en carritos aún.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══ MENSAJES ══════════════════════════════════════════ -->
+    <div class="seccion" id="sec-mensajes">
+        <h2 class="seccion-titulo">💬 Mensajes</h2>
+
+        <div class="admin-tabla">
+            <div class="row g-0" style="min-height:420px;">
+                <!-- Lista usuarios -->
+                <div class="col-md-4 usuarios-lista">
+                    <div style="padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <p style="color:#9ca3af; font-size:0.8rem; margin:0; font-weight:700; text-transform:uppercase;">Conversaciones</p>
+                    </div>
+                    {% set usuarios_con_msg = [] %}
+                    {% for m in mensajes %}
+                        {% if m.de != 'admin' and m.de not in usuarios_con_msg %}
+                            {% set _ = usuarios_con_msg.append(m.de) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% for correo_u in usuarios_con_msg %}
+                    {% set msgs_usuario = mensajes | selectattr('de', 'equalto', correo_u) | list %}
+                    {% set no_leidos = mensajes | selectattr('de', 'equalto', correo_u) | selectattr('leido', 'equalto', false) | list | length %}
+                    <div class="usuario-chat-item" id="chat-item-{{ loop.index }}" onclick="abrirChat('{{ correo_u }}', '{{ msgs_usuario[0].nombre if msgs_usuario else correo_u }}')">
+                        <div class="usuario-avatar">{{ (msgs_usuario[0].nombre if msgs_usuario else correo_u)[0]|upper }}</div>
+                        <div style="flex:1; min-width:0;">
+                            <h6>{{ msgs_usuario[0].nombre if msgs_usuario else correo_u }}</h6>
+                            <small>{{ correo_u }}</small>
+                        </div>
+                        {% if no_leidos > 0 %}
+                        <span class="sidebar-notif">{{ no_leidos }}</span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div style="padding:30px; text-align:center; color:#4b5563;">
+                        <p style="font-size:2rem;">💬</p>
+                        <p style="font-size:0.85rem;">No hay mensajes aún.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- Panel chat -->
+                <div class="col-md-8">
+                    <div class="chat-panel">
+                        <div class="chat-mensajes" id="chatAdminMensajes">
+                            <div class="chat-sin-seleccion">
+                                <div>
+                                    <p style="font-size:2rem;">👈</p>
+                                    <p>Selecciona una conversación</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area" id="chatAdminInput" style="display:none;">
+                            <textarea id="txtAdminMsg" rows="2" placeholder="Escribe tu respuesta..."></textarea>
+                            <button class="btn-send" onclick="enviarAdminMsg()">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ DASHBOARD ═════════════════════════════════════════ -->
+    <div class="seccion" id="sec-dashboard">
+        <h2 class="seccion-titulo">📊 Dashboard</h2>
+
+        <!-- Stats rápidos -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="numero" style="color:#06b6d4;">{{ usuarios|length }}</div>
+                    <div class="etiqueta">Usuarios registrados</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="numero" style="color:#f97316;">{{ ventas|length }}</div>
+                    <div class="etiqueta">Productos vendidos</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="numero" style="color:#8b5cf6;">{{ mensajes|length }}</div>
+                    <div class="etiqueta">Mensajes recibidos</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="numero" style="color:#10b981;">
+                        S/ {{ ventas | sum(attribute='precio') | int }}
+                    </div>
+                    <div class="etiqueta">Ganancias totales</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficas -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h6>📈 Usuarios registrados por mes</h6>
+                    <canvas id="chartUsuarios" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h6>💰 Ganancias mensuales (S/)</h6>
+                    <canvas id="chartGanancias" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h6>🛒 Productos más vendidos</h6>
+                    <canvas id="chartProductos" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <h6>💬 Mensajes recibidos por mes</h6>
+                    <canvas id="chartMensajes" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- fin main-content -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── DATOS DEL SERVIDOR ──
+const dataUsuarios = {{ usuarios | tojson }};
+const dataVentas   = {{ ventas   | tojson }};
+const dataMensajes = {{ mensajes | tojson }};
+let chatCorreoActual = "";
+
+// ── NAVEGACIÓN SIDEBAR ──
+function mostrarSeccion(id) {
+    document.querySelectorAll(".seccion").forEach(s => s.classList.remove("active"));
+    document.querySelectorAll(".sidebar-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("sec-" + id).classList.add("active");
+    document.getElementById("btn-" + id).classList.add("active");
+    if (id === "dashboard") renderGraficas();
+}
+
+// ── USUARIOS ──
+function accionUsuario(accion) {
+    const correo   = document.getElementById("uCorreo").value.trim();
+    const nombre   = document.getElementById("uNombre").value.trim();
+    const password = document.getElementById("uPassword").value.trim();
+    const msg      = document.getElementById("msgUsuario");
+    if (!correo) { mostrarMsg(msg, "Ingresa el correo del usuario.", false); return; }
+    fetch("/api/admin/usuario", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({accion, correo, nombre, password})
+    })
+    .then(r => r.json())
+    .then(d => {
+        mostrarMsg(msg, d.mensaje, d.success);
+        if (d.success && accion === "buscar" && d.usuario) {
+            document.getElementById("uNombre").value = d.usuario.nombre;
+        }
+        if (d.success && accion !== "buscar") setTimeout(() => location.reload(), 1200);
+    });
+}
+
+function mostrarMsg(el, texto, ok) {
+    el.textContent = texto;
+    el.className = ok ? "msg-admin-ok" : "msg-admin-error";
+    el.style.display = "block";
+    setTimeout(() => { el.style.display = "none"; }, 3500);
+}
+
+// ── CHAT ADMIN ──
+function abrirChat(correo, nombre) {
+    chatCorreoActual = correo;
+    document.querySelectorAll(".usuario-chat-item").forEach(i => i.classList.remove("active"));
+    document.getElementById("chatAdminInput").style.display = "flex";
+    cargarChatAdmin(correo);
+}
+
+function cargarChatAdmin(correo) {
+    fetch("/api/admin/mensajes/hilo?correo=" + correo)
+    .then(r => r.json())
+    .then(hilo => {
+        const box = document.getElementById("chatAdminMensajes");
+        if (!hilo.length) {
+            box.innerHTML = '<div class="chat-sin-seleccion"><div><p style="font-size:2rem">📭</p><p>Sin mensajes con este usuario</p></div></div>';
+            return;
+        }
+        let html = "";
+        hilo.forEach(m => {
+            const esAdmin = m.de === "admin";
+            html += `<div style="display:flex;flex-direction:column;align-items:${esAdmin ? 'flex-end' : 'flex-start'}">
+                <div class="msg-burbuja ${esAdmin ? 'msg-admin-out' : 'msg-user-in'}">
+                    ${!esAdmin ? `<strong style="display:block;color:#06b6d4;font-size:0.78rem;margin-bottom:3px;">${m.nombre}</strong>` : ''}
+                    ${m.texto}
+                    <div class="msg-fecha-chat" style="text-align:${esAdmin ? 'right' : 'left'}">${m.fecha}</div>
+                </div>
+            </div>`;
+        });
+        box.innerHTML = html;
+        box.scrollTop = box.scrollHeight;
+        // Limpiar notificación
+        actualizarNotifSidebar();
+    });
+}
+
+function enviarAdminMsg() {
+    const texto = document.getElementById("txtAdminMsg").value.trim();
+    if (!texto || !chatCorreoActual) return;
+    fetch("/api/admin/mensaje", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({para: chatCorreoActual, texto})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            document.getElementById("txtAdminMsg").value = "";
+            cargarChatAdmin(chatCorreoActual);
+        }
+    });
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey && document.getElementById("txtAdminMsg") === document.activeElement) {
+        e.preventDefault(); enviarAdminMsg();
+    }
+});
+
+function irAMensaje(correo, nombre) {
+    mostrarSeccion("mensajes");
+    setTimeout(() => abrirChat(correo, nombre), 200);
+}
+
+// ── NOTIFICACIONES ADMIN ──
+function actualizarNotifSidebar() {
+    fetch("/api/admin/notif")
+    .then(r => r.json())
+    .then(d => {
+        const el = document.getElementById("notifSidebar");
+        if (d.count > 0) {
+            el.textContent = d.count;
+            el.style.display = "flex";
+            document.title = `(${d.count}) Admin - Wampar Sport`;
+        } else {
+            el.style.display = "none";
+            document.title = "Panel Admin - Wampar Sport";
+        }
+    });
+}
+setInterval(actualizarNotifSidebar, 8000);
+
+// ── GRÁFICAS ──
+let graficasRenderizadas = false;
+function renderGraficas() {
+    if (graficasRenderizadas) return;
+    graficasRenderizadas = true;
+
+    const colores = ["#f97316","#06b6d4","#8b5cf6","#10b981","#ef4444","#f59e0b"];
+    const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+    function contarPorMes(arr, campo) {
+        const counts = {};
+        arr.forEach(item => {
+            const fecha = item[campo] || "";
+            const mes = fecha.slice(5,7);
+            const mesNom = meses[parseInt(mes)-1] || fecha;
+            counts[mesNom] = (counts[mesNom] || 0) + 1;
+        });
+        return counts;
+    }
+
+    function sumarPorMes(arr) {
+        const sums = {};
+        arr.forEach(item => {
+            const fecha = item.fecha || "";
+            const mes = fecha.slice(5,7);
+            const mesNom = meses[parseInt(mes)-1] || fecha;
+            sums[mesNom] = (sums[mesNom] || 0) + (item.precio || 0);
+        });
+        return sums;
+    }
+
+    function contarProductos(arr) {
+        const counts = {};
+        arr.forEach(v => { counts[v.producto] = (counts[v.producto]||0)+1; });
+        return counts;
+    }
+
+    const cfg = (labels, data, color, tipo="bar") => ({
+        type: tipo,
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: tipo === "doughnut" ? colores : color + "99",
+                borderColor: tipo === "doughnut" ? colores : color,
+                borderWidth: 2,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive:true,
+            plugins: { legend: { display: tipo==="doughnut", labels:{color:"#9ca3af",font:{family:"Montserrat"}} } },
+            scales: tipo !== "doughnut" ? {
+                x: { ticks:{color:"#9ca3af"}, grid:{color:"rgba(255,255,255,0.05)"} },
+                y: { ticks:{color:"#9ca3af"}, grid:{color:"rgba(255,255,255,0.05)"}, beginAtZero:true }
+            } : {}
+        }
+    });
+
+    // Usuarios por mes
+    const uMes = contarPorMes(dataUsuarios, "fecha");
+    new Chart("chartUsuarios", cfg(Object.keys(uMes), Object.values(uMes), "#06b6d4"));
+
+    // Ganancias por mes
+    const gMes = sumarPorMes(dataVentas);
+    new Chart("chartGanancias", cfg(Object.keys(gMes), Object.values(gMes), "#10b981"));
+
+    // Productos más vendidos
+    const prod = contarProductos(dataVentas);
+    new Chart("chartProductos", cfg(Object.keys(prod), Object.values(prod), "#f97316", "doughnut"));
+
+    // Mensajes por mes
+    const mMes = contarPorMes(dataMensajes, "fecha");
+    new Chart("chartMensajes", cfg(Object.keys(mMes), Object.values(mMes), "#8b5cf6"));
+}
+</script>
+</body>
+</html>
