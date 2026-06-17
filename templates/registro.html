@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Wampar Sport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <style>
+        .auth-card {
+            background-color: #111827;
+            border: 1px solid rgba(6,182,212,0.25);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 420px;
+            margin: 80px auto;
+        }
+        .auth-logo {
+            height: 80px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+        .auth-title {
+            font-family: 'Bangers', cursive;
+            font-size: 2.2rem;
+            color: #f97316;
+            text-align: center;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        .auth-subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        .form-control {
+            background-color: #1f2937;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .form-control:focus {
+            background-color: #1f2937;
+            color: #ffffff;
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 0.2rem rgba(6,182,212,0.25);
+        }
+        .form-label { color: #d1d5db; font-weight: 600; }
+        .btn-auth {
+            background-color: #f97316;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-weight: 800;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn-auth:hover { background-color: #06b6d4; color: white; }
+        .link-login { color: #06b6d4; text-decoration: none; }
+        .link-login:hover { color: #f97316; }
+        .msg-error { background-color: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; border-radius: 8px; padding: 10px 15px; margin-bottom: 20px; font-size: 0.9rem; }
+        .msg-ok { background-color: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.4); color: #67e8f9; border-radius: 8px; padding: 10px 15px; margin-bottom: 20px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="auth-card">
+        <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo" class="auth-logo">
+        <h1 class="auth-title">Crear cuenta</h1>
+        <p class="auth-subtitle">Regístrate en Wampar Sport</p>
+
+        {% if mensaje %}
+        <div class="{{ 'msg-ok' if tipo == 'ok' else 'msg-error' }}">{{ mensaje }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" class="form-control" name="nombre" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Correo electrónico</label>
+                <input type="email" class="form-control" name="correo" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="password" required>
+            </div>
+            <button type="submit" class="btn-auth">Crear cuenta</button>
+        </form>
+
+        <p class="text-center mt-4" style="color:#9ca3af; font-size:0.9rem;">
+            ¿Ya tienes cuenta?
+            <a href="{{ url_for('login') }}" class="link-login">Inicia sesión</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

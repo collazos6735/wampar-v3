@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wampar Sport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <style>
+        .nav-icon-btn { position:relative; background:none; border:none; color:#fff; cursor:pointer; padding:4px 8px; font-size:1.3rem; }
+        .badge-notif { position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; border-radius:50%; width:18px; height:18px; font-size:0.65rem; display:flex; align-items:center; justify-content:center; font-weight:900; }
+        /* MODAL CARRITO */
+        .carrito-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; }
+        .carrito-panel { position:fixed; right:0; top:0; height:100%; width:360px; background:#0f172a; border-left:1px solid rgba(6,182,212,0.3); padding:30px 20px; overflow-y:auto; z-index:10000; transform:translateX(100%); transition:transform 0.3s ease; }
+        .carrito-panel.open { transform:translateX(0); }
+        .carrito-item { background:#1e293b; border-radius:10px; padding:12px 15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+        .carrito-item h6 { color:#fff; margin:0; font-weight:700; }
+        .carrito-item span { color:#f97316; font-weight:800; }
+        .btn-quitar { background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; }
+        .carrito-total { border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:10px; color:#fff; font-weight:900; font-size:1.1rem; }
+        .btn-agregar-carrito { background:#f97316; color:#fff; border:none; border-radius:6px; padding:8px 16px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.3s; margin-top:8px; width:100%; }
+        .btn-agregar-carrito:hover { background:#06b6d4; }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-light fixed-top custom-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="#inicio">
+            <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo Wampar Sport" class="logo-navbar">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menuNavbar">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                <li class="nav-item"><a class="nav-link active" href="#inicio">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
+                <li class="nav-item"><a class="nav-link" href="#catalogo">Catálogo</a></li>
+                <li class="nav-item"><a class="nav-link" href="#ubicacion">Ubicación</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('contactanos') }}">Contáctanos</a></li>
+                {% if nombre %}
+                <li class="nav-item ms-2">
+                    <button class="nav-icon-btn" onclick="abrirCarrito()" title="Carrito">
+                        🛒
+                        <span class="badge-notif" id="badgeCarrito" style="{{ 'display:none' if total_items == 0 else '' }}">{{ total_items }}</span>
+                    </button>
+                </li>
+                {% if notif > 0 %}
+                <li class="nav-item">
+                    <a href="{{ url_for('contactanos') }}" class="nav-icon-btn" title="Mensajes nuevos">
+                        💬
+                        <span class="badge-notif">{{ notif }}</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="nav-item ms-2">
+                    <span style="color:#06b6d4; font-weight:700; font-size:0.9rem; margin-right:10px;">Hola, {{ nombre }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-banner" style="padding:7px 16px; font-size:0.82rem;">Salir</a>
+                </li>
+                {% else %}
+                <li class="nav-item ms-3">
+                    <a href="{{ url_for('login') }}" class="btn-banner" style="padding:8px 18px; font-size:0.85rem;">Iniciar sesión</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- PANEL CARRITO -->
+<div class="carrito-overlay" id="carritoOverlay" onclick="cerrarCarrito()"></div>
+<div class="carrito-panel" id="carritoPanel">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h4 style="color:#f97316; font-family:'Bangers'; letter-spacing:2px; margin:0;">🛒 Mi Carrito</h4>
+        <button onclick="cerrarCarrito()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;">✕</button>
+    </div>
+    <div id="carritoItems"><p style="color:#9ca3af; text-align:center; margin-top:40px;">Tu carrito está vacío</p></div>
+    <div class="carrito-total" id="carritoTotal" style="display:none;">
+        Total: <span id="totalPrecio" style="color:#f97316;">S/ 0</span>
+    </div>
+</div>
+
+<!-- BANNER -->
+<section class="banner" id="inicio">
+    <div class="contenido-banner">
+        <h1>Personaliza tu equipo</h1>
+        <p>Diseños únicos, calidad deportiva y sublimación profesional para equipos, eventos y promociones.</p>
+        <a href="#catalogo" class="btn-banner">Ver Catálogo</a>
+    </div>
+</section>
+
+<!-- NOSOTROS -->
+<section class="py-5" id="nosotros">
+    <div class="container nosotros-box">
+        <h2 class="text-center">Sobre Nosotros</h2>
+        <p class="text-center">En <strong>Wampar Sport</strong> nos apasiona el deporte y la personalización. Somos una empresa especializada en sublimación de camisetas deportivas, shorts, bividi y banderolas, ofreciendo productos únicos que combinan calidad, resistencia y estilo.</p>
+        <p class="text-center">Nuestro compromiso es brindar a cada cliente prendas que reflejen su identidad, ya sea para equipos deportivos, eventos, empresas o uso personal. Trabajamos con materiales de primera y técnicas modernas de sublimación que garantizan colores vibrantes y diseños duraderos.</p>
+    </div>
+</section>
+
+<!-- CATÁLOGO -->
+<section class="py-5 bg-light" id="catalogo">
+    <div class="container">
+        <h2 class="text-center mb-5">Catálogo Deportivo</h2>
+        <div class="row g-4">
+            {% set productos = [
+                ('CAMISETA.jpg', 'Camiseta', 9, 'Camiseta sublimada'),
+                ('CAMISETA_Y_SHORT.jpg', 'Camiseta + Short', 16, 'Conjunto deportivo'),
+                ('BIVIDI.jpg', 'Bividi', 8, 'Bividi sublimado'),
+            ] %}
+            {% for img, nombre_p, precio, alt in productos %}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="{{ url_for('static', filename='img/' + img) }}" class="card-img-top" alt="{{ alt }}">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ nombre_p }}</h5>
+                        <p class="precio">Precio: S/ {{ precio }}</p>
+                        {% if nombre %}
+                        <button class="btn-agregar-carrito" onclick="agregarCarrito('{{ nombre_p }}', {{ precio }})">🛒 Agregar al carrito</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="{{ url_for('static', filename='img/SHORT.jpg') }}" class="card-img-top" alt="Short sublimado">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Short</h5>
+                        <p class="precio">Precio: S/ 7</p>
+                        {% if nombre %}
+                        <button class="btn-agregar-carrito" onclick="agregarCarrito('Short', 7)">🛒 Agregar al carrito</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="{{ url_for('static', filename='img/BANDEROLA.jpg') }}" class="card-img-top" alt="Banderola sublimada">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Banderola</h5>
+                        <p class="precio">Precio: S/ 15</p>
+                        {% if nombre %}
+                        <button class="btn-agregar-carrito" onclick="agregarCarrito('Banderola', 15)">🛒 Agregar al carrito</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if not nombre %}
+        <p class="text-center mt-4" style="color:#9ca3af;">
+            <a href="{{ url_for('login') }}" style="color:#f97316;">Inicia sesión</a> para agregar productos al carrito.
+        </p>
+        {% endif %}
+    </div>
+</section>
+
+<!-- UBICACIÓN -->
+<section class="py-5" id="ubicacion">
+    <div class="container">
+        <h2 class="text-center mb-5">Ubicación</h2>
+        <p class="text-center mb-4">Encuéntranos en Gamarra, La Victoria, Edificio "Pigas" puesto número 410.</p>
+        <div class="ratio ratio-16x9 shadow rounded overflow-hidden">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7803.326538526856!2d-77.01995375480536!3d-12.06667386087673!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c89ec2a832cf%3A0x64b6a4e4b20a589d!2sGamarra%2C%20La%20Victoria%2015018!5e0!3m2!1ses-419!2spe!4v1777979485366!5m2!1ses-419!2spe" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container text-center">
+        <p class="mb-1">© 2026 Wampar Sport</p>
+        <p class="mb-0">Sublimación deportiva en Gamarra</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+{% if nombre %}
+// ── CARRITO ──
+function abrirCarrito() {
+    document.getElementById("carritoOverlay").style.display = "block";
+    document.getElementById("carritoPanel").classList.add("open");
+    cargarCarrito();
+}
+function cerrarCarrito() {
+    document.getElementById("carritoOverlay").style.display = "none";
+    document.getElementById("carritoPanel").classList.remove("open");
+}
+function cargarCarrito() {
+    fetch("/api/carrito/obtener")
+    .then(r => r.json())
+    .then(items => {
+        const cont = document.getElementById("carritoItems");
+        const totDiv = document.getElementById("carritoTotal");
+        if (!items.length) {
+            cont.innerHTML = '<p style="color:#9ca3af;text-align:center;margin-top:40px;">Tu carrito está vacío</p>';
+            totDiv.style.display = "none"; return;
+        }
+        let html = "", total = 0;
+        items.forEach(item => {
+            total += item.precio * item.cantidad;
+            html += `<div class="carrito-item">
+                <div>
+                    <h6>${item.producto}</h6>
+                    <small style="color:#9ca3af;">Cantidad: ${item.cantidad}</small>
+                </div>
+                <div style="text-align:right;">
+                    <span>S/ ${item.precio * item.cantidad}</span><br>
+                    <button class="btn-quitar" onclick="quitarItem('${item.producto}')">🗑️</button>
+                </div>
+            </div>`;
+        });
+        cont.innerHTML = html;
+        document.getElementById("totalPrecio").textContent = "S/ " + total;
+        totDiv.style.display = "block";
+    });
+}
+function agregarCarrito(producto, precio) {
+    fetch("/api/carrito/agregar", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({producto, precio})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            const badge = document.getElementById("badgeCarrito");
+            badge.textContent = d.total;
+            badge.style.display = "flex";
+            abrirCarrito();
+        } else { alert(d.mensaje || "Debes iniciar sesión."); }
+    });
+}
+function quitarItem(producto) {
+    fetch("/api/carrito/eliminar", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({producto})
+    }).then(r => r.json()).then(() => cargarCarrito());
+}
+// ── NOTIFICACIONES ──
+setInterval(() => {
+    fetch("/api/mensajes/nuevos")
+    .then(r => r.json())
+    .then(d => {
+        if (d.count > 0) {
+            document.title = `(${d.count}) Wampar Sport`;
+        }
+    });
+}, 10000);
+{% endif %}
+</script>
+</body>
+</html>

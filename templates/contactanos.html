@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contáctanos - Wampar Sport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <style>
+        body { padding-top: 80px; }
+        .chat-container { max-width: 750px; margin: 0 auto; padding: 20px; }
+        .chat-header { background:#111827; border:1px solid rgba(6,182,212,0.3); border-radius:15px 15px 0 0; padding:20px 25px; display:flex; align-items:center; gap:15px; }
+        .chat-avatar { width:48px; height:48px; background:linear-gradient(135deg,#f97316,#06b6d4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+        .chat-header h5 { margin:0; color:#fff; font-weight:900; }
+        .chat-header p { margin:0; color:#06b6d4; font-size:0.85rem; }
+        .chat-box { background:#0f172a; border:1px solid rgba(6,182,212,0.2); border-top:none; min-height:420px; max-height:420px; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+        .msg { max-width:75%; padding:12px 16px; border-radius:16px; font-size:0.92rem; line-height:1.5; }
+        .msg-enviado { background:#f97316; color:#fff; align-self:flex-end; border-radius:16px 16px 4px 16px; }
+        .msg-recibido { background:#1e293b; color:#e5e7eb; align-self:flex-start; border-radius:16px 16px 16px 4px; }
+        .msg-fecha { font-size:0.72rem; opacity:0.6; margin-top:4px; }
+        .chat-footer { background:#111827; border:1px solid rgba(6,182,212,0.3); border-top:none; border-radius:0 0 15px 15px; padding:15px 20px; display:flex; gap:10px; }
+        .chat-footer textarea { flex:1; background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:12px; resize:none; font-family:'Montserrat',sans-serif; font-size:0.9rem; }
+        .chat-footer textarea:focus { outline:none; border-color:#06b6d4; }
+        .btn-enviar { background:#f97316; color:#fff; border:none; border-radius:10px; padding:12px 20px; font-weight:800; cursor:pointer; transition:0.3s; }
+        .btn-enviar:hover { background:#06b6d4; }
+        .empty-chat { text-align:center; margin:auto; color:#4b5563; }
+        .empty-chat p { font-size:2rem; margin-bottom:10px; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light fixed-top custom-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo" class="logo-navbar">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span style="color:#06b6d4; font-weight:700;">Hola, {{ nombre }}</span>
+            <a href="{{ url_for('index') }}" style="color:#9ca3af; text-decoration:none; font-size:0.9rem;">← Volver</a>
+            <a href="{{ url_for('logout') }}" class="btn-banner" style="padding:7px 16px; font-size:0.82rem;">Salir</a>
+        </div>
+    </div>
+</nav>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <div class="chat-avatar">🏅</div>
+        <div>
+            <h5>Wampar Sport</h5>
+            <p>Soporte al cliente · Tiempo de respuesta: rápido</p>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        {% if not hilo %}
+        <div class="empty-chat">
+            <p>💬</p>
+            <p style="color:#4b5563; font-size:0.95rem;">Aún no hay mensajes.<br>¡Escríbenos y te responderemos pronto!</p>
+        </div>
+        {% else %}
+        {% for m in hilo %}
+        <div style="display:flex; flex-direction:column; align-items:{{ 'flex-end' if m.de == correo else 'flex-start' }}">
+            <div class="msg {{ 'msg-enviado' if m.de == correo else 'msg-recibido' }}">
+                {% if m.de != correo %}<strong style="display:block; margin-bottom:4px; color:#06b6d4; font-size:0.8rem;">{{ m.nombre }}</strong>{% endif %}
+                {{ m.texto }}
+                <div class="msg-fecha" style="text-align:{{ 'right' if m.de == correo else 'left' }}">{{ m.fecha }}</div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="chat-footer">
+        <textarea id="txtMensaje" rows="2" placeholder="Escribe tu mensaje..."></textarea>
+        <button class="btn-enviar" onclick="enviarMensaje()">Enviar ➤</button>
+    </div>
+
+    <p style="color:#4b5563; font-size:0.8rem; text-align:center; margin-top:10px;">
+        Puedes consultarnos sobre modificaciones, pedidos, problemas o cualquier duda.
+    </p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const chatBox = document.getElementById("chatBox");
+chatBox.scrollTop = chatBox.scrollHeight;
+
+function enviarMensaje() {
+    const texto = document.getElementById("txtMensaje").value.trim();
+    if (!texto) return;
+    fetch("/api/mensaje", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({texto})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
+            document.getElementById("txtMensaje").value = "";
+            cargarHilo();
+        }
+    });
+}
+
+function cargarHilo() {
+    fetch("/api/mensajes/hilo")
+    .then(r => r.json())
+    .then(hilo => {
+        if (!hilo.length) return;
+        const correo = "{{ correo }}";
+        let html = "";
+        hilo.forEach(m => {
+            const esPropio = m.de === correo;
+            html += `<div style="display:flex;flex-direction:column;align-items:${esPropio ? 'flex-end' : 'flex-start'}">
+                <div class="msg ${esPropio ? 'msg-enviado' : 'msg-recibido'}">
+                    ${!esPropio ? `<strong style="display:block;margin-bottom:4px;color:#06b6d4;font-size:0.8rem;">${m.nombre}</strong>` : ''}
+                    ${m.texto}
+                    <div class="msg-fecha" style="text-align:${esPropio ? 'right' : 'left'}">${m.fecha}</div>
+                </div>
+            </div>`;
+        });
+        chatBox.innerHTML = html;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
+
+document.getElementById("txtMensaje").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarMensaje(); }
+});
+
+setInterval(cargarHilo, 5000);
+</script>
+</body>
+</html>
