@@ -1,0 +1,219 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* NAVBAR */
+.custom-navbar {
+    background-color: #07111f;
+    padding: 10px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+}
+
+.logo-navbar {
+    height: 70px;
+    width: auto;
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff;
+    margin-left: 18px;
+    transition: 0.3s;
+    font-weight: 700;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #06b6d4;
+}
+
+.navbar-nav .nav-link.active {
+    color: #f97316;
+}
+
+/* BANNER */
+.banner {
+    background-image:
+    linear-gradient(
+        to right,
+        rgba(7,17,31,0.85),
+        rgba(7,17,31,0.45),
+        rgba(7,17,31,0.05)
+    ),
+    url('../img/fondo.png');
+
+    background-size: cover;
+    background-position: center;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    padding-left: 80px;
+}
+
+.contenido-banner {
+    max-width: 650px;
+    color: white;
+}
+
+.contenido-banner h1 {
+    font-family: 'Bangers', cursive;
+    letter-spacing: 2px;
+    font-size: 5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1;
+    color: #ffffff;
+    text-shadow: 5px 5px 0 #000;
+}
+
+.contenido-banner p {
+    font-size: 1.3rem;
+    margin: 25px 0;
+    font-weight: 700;
+    color: #dbeafe;
+}
+
+/* BOTONES */
+.btn-banner,
+.btn-principal {
+    background-color: #f97316;
+    color: white;
+    padding: 13px 30px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 800;
+    border: none;
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-banner:hover,
+.btn-principal:hover {
+    background-color: #06b6d4;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* SECCIONES */
+section {
+    padding-top: 70px;
+    padding-bottom: 70px;
+}
+
+section h2 {
+    font-family: 'Montserrat', sans-serif;
+    color: #ffffff;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 3px 3px 0 #000;
+}
+
+/* NOSOTROS */
+.nosotros-box {
+    background-color: #111827;
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+    border: 1px solid rgba(6,182,212,0.25);
+}
+
+.nosotros-box p {
+    max-width: 850px;
+    margin: auto;
+    margin-top: 20px;
+    line-height: 1.8;
+    color: #e5e7eb;
+}
+
+/* FONDOS CLAROS DE BOOTSTRAP */
+.bg-light {
+    background-color: #0b1220 !important;
+}
+
+/* CARDS */
+.card {
+    background-color: #111827;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: 0.3s ease;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(6,182,212,0.25);
+}
+
+.card-img-top {
+    height: 260px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-weight: 900;
+    color: #ffffff;
+}
+
+.precio {
+    color: #f97316;
+    font-weight: 800;
+}
+
+/* FORMULARIO */
+.form-label {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px;
+    background-color: #ffffff;
+}
+
+.form-control:focus {
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 0.2rem rgba(6,182,212,0.25);
+}
+
+/* FOOTER */
+.footer {
+    background-color: #07111f;
+    color: white;
+    padding: 25px 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .logo-navbar {
+        height: 55px;
+    }
+
+    .banner {
+        min-height: 70vh;
+        padding-left: 25px;
+        padding-right: 25px;
+        background-position: center right;
+    }
+
+    .contenido-banner h1 {
+        font-size: 2.6rem;
+    }
+
+    .contenido-banner p {
+        font-size: 1rem;
+    }
+
+    .navbar-nav .nav-link {
+        margin-left: 0;
+    }
+
+    .nosotros-box {
+        padding: 30px;
+    }
+}
