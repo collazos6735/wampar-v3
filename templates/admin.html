@@ -7,82 +7,117 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <style>
         body { margin:0; padding:0; background:#0b1220; font-family:'Montserrat',sans-serif; }
-        /* TOPBAR */
         .topbar { background:#07111f; height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 30px; border-bottom:1px solid rgba(6,182,212,0.2); position:fixed; top:0; left:0; right:0; z-index:100; }
         .topbar-logo { display:flex; align-items:center; gap:12px; }
         .topbar-logo img { height:45px; }
         .topbar-logo span { font-family:'Bangers'; font-size:1.3rem; color:#f97316; letter-spacing:2px; }
         .btn-salir { background:#ef4444; color:#fff; border:none; border-radius:8px; padding:8px 18px; font-weight:800; cursor:pointer; transition:0.3s; }
         .btn-salir:hover { background:#dc2626; }
-        /* SIDEBAR */
         .sidebar { position:fixed; top:65px; left:0; bottom:0; width:220px; background:#07111f; border-right:1px solid rgba(6,182,212,0.15); padding:20px 0; }
         .sidebar-btn { display:flex; align-items:center; gap:12px; width:100%; background:none; border:none; color:#9ca3af; padding:14px 25px; font-family:'Montserrat'; font-weight:700; font-size:0.92rem; cursor:pointer; transition:0.3s; text-align:left; position:relative; }
         .sidebar-btn:hover { background:rgba(6,182,212,0.1); color:#fff; }
         .sidebar-btn.active { background:rgba(249,115,22,0.15); color:#f97316; border-left:3px solid #f97316; }
         .sidebar-btn .icono { font-size:1.2rem; }
         .sidebar-notif { background:#ef4444; color:#fff; border-radius:50%; width:20px; height:20px; font-size:0.65rem; display:flex; align-items:center; justify-content:center; font-weight:900; margin-left:auto; }
-        /* CONTENIDO */
         .main-content { margin-left:220px; margin-top:65px; padding:30px; min-height:calc(100vh - 65px); }
         .seccion { display:none; }
         .seccion.active { display:block; }
-        /* CARDS STATS */
         .stat-card { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; padding:20px; text-align:center; }
         .stat-card .numero { font-size:2.5rem; font-weight:900; font-family:'Bangers'; letter-spacing:1px; }
         .stat-card .etiqueta { color:#9ca3af; font-size:0.85rem; font-weight:600; margin-top:5px; }
-        /* TABLAS */
         .admin-tabla { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; overflow:hidden; }
+        .admin-tabla.no-overflow { overflow:visible; }
         .admin-tabla table { width:100%; border-collapse:collapse; }
-        .admin-tabla th { background:#0b1220; color:#06b6d4; padding:12px 16px; font-weight:700; font-size:0.85rem; text-transform:uppercase; }
-        .admin-tabla td { padding:12px 16px; color:#e5e7eb; border-top:1px solid rgba(255,255,255,0.05); font-size:0.9rem; }
+        .admin-tabla th { background:#0b1220; color:#06b6d4; padding:12px 16px; font-weight:700; font-size:0.82rem; text-transform:uppercase; white-space:nowrap; }
+        .admin-tabla td { padding:12px 16px; color:#e5e7eb; border-top:1px solid rgba(255,255,255,0.05); font-size:0.88rem; }
         .admin-tabla tr:hover td { background:rgba(6,182,212,0.05); }
-        /* INPUTS ADMIN */
         .inp-admin { background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px 14px; width:100%; font-family:'Montserrat'; margin-bottom:10px; }
         .inp-admin:focus { outline:none; border-color:#06b6d4; }
-        /* BOTONES */
-        .btn-buscar  { background:#06b6d4; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
-        .btn-mod     { background:#f97316; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
-        .btn-del     { background:#ef4444; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
-        .btn-msg     { background:#8b5cf6; color:#fff; border:none; border-radius:8px; padding:7px 14px; font-weight:700; cursor:pointer; font-size:0.82rem; transition:0.3s; }
+        .btn-buscar { background:#06b6d4; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
+        .btn-mod    { background:#f97316; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
+        .btn-del    { background:#ef4444; color:#fff; border:none; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; transition:0.3s; }
+        .btn-msg    { background:#8b5cf6; color:#fff; border:none; border-radius:8px; padding:7px 14px; font-weight:700; cursor:pointer; font-size:0.82rem; transition:0.3s; }
         .btn-buscar:hover { background:#0891b2; }
         .btn-mod:hover    { background:#ea580c; }
         .btn-del:hover    { background:#dc2626; }
         .btn-msg:hover    { background:#7c3aed; }
-        /* MENSAJES */
         .msg-admin-ok    { background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.4); color:#67e8f9; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.88rem; display:none; }
         .msg-admin-error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:0.88rem; display:none; }
-        /* CHAT ADMIN */
-        .usuarios-lista { height:400px; overflow-y:auto; border-right:1px solid rgba(255,255,255,0.08); }
+        .chat-wrapper-row { display:flex; height:600px; border-radius:12px; overflow:hidden; }
+        .usuarios-lista { width:340px; flex-shrink:0; height:100%; overflow-y:auto; border-right:1px solid rgba(255,255,255,0.08); }
         .usuario-chat-item { padding:14px 16px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.05); transition:0.2s; display:flex; align-items:center; gap:10px; }
         .usuario-chat-item:hover, .usuario-chat-item.active { background:rgba(6,182,212,0.1); }
         .usuario-avatar { width:40px; height:40px; background:linear-gradient(135deg,#f97316,#06b6d4); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff; font-size:1rem; flex-shrink:0; }
         .usuario-chat-item h6 { margin:0; color:#fff; font-size:0.9rem; }
         .usuario-chat-item small { color:#9ca3af; font-size:0.78rem; }
-        .chat-panel { height:400px; display:flex; flex-direction:column; }
-        .chat-mensajes { flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; }
+        .chat-panel { flex:1; height:100%; display:flex; flex-direction:column; min-width:0; }
+        .chat-mensajes { flex:1 1 auto; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; min-height:0; }
         .chat-sin-seleccion { display:flex; align-items:center; justify-content:center; height:100%; color:#4b5563; text-align:center; }
         .msg-burbuja { max-width:70%; padding:10px 14px; border-radius:12px; font-size:0.88rem; line-height:1.5; }
         .msg-admin-out { background:#f97316; color:#fff; align-self:flex-end; border-radius:12px 12px 4px 12px; }
         .msg-user-in  { background:#1e293b; color:#e5e7eb; align-self:flex-start; border-radius:12px 12px 12px 4px; }
         .msg-fecha-chat { font-size:0.7rem; opacity:0.6; margin-top:3px; }
-        .chat-input-area { padding:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px; }
+        .chat-input-area { padding:12px; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px; align-items:flex-end; flex-shrink:0; }
         .chat-input-area textarea { flex:1; background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px; font-family:'Montserrat'; font-size:0.88rem; resize:none; }
         .chat-input-area textarea:focus { outline:none; border-color:#06b6d4; }
         .btn-send { background:#f97316; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-weight:800; cursor:pointer; }
-        /* GRAFICAS */
+        .btn-adjuntar { background:#1e293b; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:10px 12px; cursor:pointer; font-size:1rem; transition:0.3s; }
+        .btn-adjuntar:hover { background:#374151; }
+        .preview-imagen { display:none; position:relative; margin-bottom:8px; }
+        .preview-imagen img { max-height:80px; border-radius:8px; }
+        .preview-imagen .quitar-preview { position:absolute; top:-8px; left:68px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:20px; height:20px; font-size:0.7rem; cursor:pointer; }
+        .msg-burbuja img.msg-imagen-admin { max-width:100%; border-radius:8px; margin-bottom:6px; display:block; cursor:pointer; }
         .chart-card { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; padding:20px; }
         .chart-card h6 { color:#06b6d4; font-weight:900; margin-bottom:15px; text-transform:uppercase; font-size:0.85rem; letter-spacing:1px; }
-        /* TITULO SECCION */
         .seccion-titulo { font-family:'Bangers'; color:#f97316; font-size:2rem; letter-spacing:2px; margin-bottom:25px; }
-        /* BADGE NUEVO */
-        .badge-nuevo { background:#ef4444; color:#fff; border-radius:10px; padding:2px 8px; font-size:0.7rem; font-weight:900; margin-left:6px; }
+        /* Estado de entrega */
+        .pill-entrega { padding:5px 12px; border-radius:20px; font-size:0.78rem; font-weight:800; display:inline-flex; align-items:center; gap:5px; cursor:pointer; border:none; transition:0.3s; }
+        .pill-pendiente { background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); }
+        .pill-pendiente:hover { background:rgba(239,68,68,0.3); }
+        .pill-entregado { background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); }
+        .pill-entregado:hover { background:rgba(16,185,129,0.3); }
+        .btn-icon-del { background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; transition:0.2s; }
+        .btn-icon-del:hover { transform:scale(1.2); }
+        /* Pedidos agrupados */
+        .pedido-card { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:12px; margin-bottom:16px; overflow:hidden; }
+        .pedido-header { background:#0b1220; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+        .pedido-header .cliente-info strong { color:#fff; font-size:0.95rem; }
+        .pedido-header .cliente-info .correo { color:#06b6d4; font-size:0.8rem; }
+        .pedido-header .fecha { color:#9ca3af; font-size:0.8rem; }
+        .pedido-header .total-pedido { color:#10b981; font-weight:800; font-size:1rem; }
+        .pedido-items { padding:6px 18px; }
+        .pedido-item-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid rgba(255,255,255,0.05); flex-wrap:wrap; gap:8px; }
+        .pedido-item-row .nombre-prod { color:#e5e7eb; font-weight:700; font-size:0.9rem; }
+        .pedido-item-row .detalle-prod { color:#9ca3af; font-size:0.8rem; }
+        .pedido-item-row .precio-prod { color:#f97316; font-size:0.85rem; }
+        .pedido-footer { padding:12px 18px; display:flex; justify-content:flex-end; gap:10px; border-top:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); }
+        .pedido-nuevo { border-color:rgba(249,115,22,0.4); }
+        .btn-aceptar-pedido { background:#059669; color:#fff; border:none; border-radius:8px; padding:9px 16px; font-weight:800; font-size:0.85rem; cursor:pointer; transition:0.2s; }
+        .btn-aceptar-pedido:hover { background:#10b981; }
+        .btn-rechazar-pedido { background:#7f1d1d; color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:9px 16px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; }
+        .btn-rechazar-pedido:hover { background:#991b1b; color:#fff; }
+        .qty-control-admin { display:flex; align-items:center; gap:6px; background:#1e293b; border-radius:8px; padding:3px 6px; }
+        .qty-btn-u { background:#374151; border:none; color:#fff; width:22px; height:22px; border-radius:6px; font-weight:800; cursor:pointer; font-size:0.85rem; }
+        .qty-btn-u:hover { background:#06b6d4; }
+        .sel-talla-admin { background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:6px; padding:3px 6px; font-size:0.8rem; margin-left:8px; }
+        .adelanto-box { display:flex; align-items:center; gap:6px; background:#1e293b; border-radius:8px; padding:8px 12px; }
+        .adelanto-box label { color:#9ca3af; font-size:0.82rem; margin:0; }
+        .adelanto-box span { color:#f97316; font-weight:700; font-size:0.85rem; }
+        .inp-adelanto { width:80px; background:#0f172a; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:4px 8px; font-size:0.85rem; text-align:center; }
+        .adelanto-de-total { color:#6b7280 !important; font-weight:400 !important; font-size:0.78rem !important; }
+        /* Formulario de agregar producto al pedido */
+        .agregar-prod-box { padding:10px 18px; background:rgba(6,182,212,0.05); border-top:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .sel-admin { background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:6px; padding:6px 8px; font-size:0.82rem; }
+        .inp-cant-admin { width:70px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; padding:6px 8px; font-size:0.82rem; text-align:center; }
+        .btn-add-prod { background:#06b6d4; color:#fff; border:none; border-radius:6px; padding:7px 14px; font-weight:800; font-size:0.82rem; cursor:pointer; transition:0.2s; }
+        .btn-add-prod:hover { background:#0891b2; }
     </style>
 </head>
 <body>
 
-<!-- TOPBAR -->
 <div class="topbar">
     <div class="topbar-logo">
         <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo">
@@ -91,7 +126,6 @@
     <a href="{{ url_for('logout') }}"><button class="btn-salir">Cerrar sesión</button></a>
 </div>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <button class="sidebar-btn active" onclick="mostrarSeccion('usuarios')" id="btn-usuarios">
         <span class="icono">👥</span> Usuarios Registrados
@@ -101,38 +135,25 @@
     </button>
     <button class="sidebar-btn" onclick="mostrarSeccion('mensajes')" id="btn-mensajes">
         <span class="icono">💬</span> Mensajes
-        {% if notif_admin > 0 %}
-        <span class="sidebar-notif" id="notifSidebar">{{ notif_admin }}</span>
-        {% else %}
-        <span class="sidebar-notif" id="notifSidebar" style="display:none">0</span>
-        {% endif %}
+        <span class="sidebar-notif" id="notifSidebar" style="{{ '' if notif_admin > 0 else 'display:none' }}">{{ notif_admin }}</span>
     </button>
     <button class="sidebar-btn" onclick="mostrarSeccion('dashboard')" id="btn-dashboard">
         <span class="icono">📊</span> Dashboard
     </button>
 </div>
 
-<!-- CONTENIDO PRINCIPAL -->
 <div class="main-content">
 
     <!-- ══ USUARIOS ══════════════════════════════════════════ -->
     <div class="seccion active" id="sec-usuarios">
         <h2 class="seccion-titulo">👥 Usuarios Registrados</h2>
-
-        <!-- Herramientas -->
         <div class="row g-3 mb-4">
             <div class="col-md-8">
                 <div class="admin-tabla p-3">
                     <div class="row g-2">
-                        <div class="col-md-4">
-                            <input type="text" id="uCorreo" class="inp-admin" placeholder="Correo del usuario">
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" id="uNombre" class="inp-admin" placeholder="Nuevo nombre">
-                        </div>
-                        <div class="col-md-4">
-                            <input type="password" id="uPassword" class="inp-admin" placeholder="Nueva contraseña">
-                        </div>
+                        <div class="col-md-4"><input type="text" id="uCorreo" class="inp-admin" placeholder="Correo del usuario"></div>
+                        <div class="col-md-4"><input type="text" id="uNombre" class="inp-admin" placeholder="Nuevo nombre"></div>
+                        <div class="col-md-4"><input type="password" id="uPassword" class="inp-admin" placeholder="Nueva contraseña"></div>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
                         <button class="btn-buscar" onclick="accionUsuario('buscar')">🔍 Buscar</button>
@@ -149,8 +170,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Tabla usuarios -->
         <div class="admin-tabla">
             <table>
                 <thead><tr><th>#</th><th>Nombre</th><th>Correo</th><th>Registro</th><th>Acción</th></tr></thead>
@@ -161,9 +180,7 @@
                         <td><strong>{{ u.nombre }}</strong></td>
                         <td style="color:#06b6d4;">{{ u.correo }}</td>
                         <td style="color:#9ca3af;">{{ u.fecha }}</td>
-                        <td>
-                            <button class="btn-msg" onclick="irAMensaje('{{ u.correo }}', '{{ u.nombre }}')">💬 Mensaje</button>
-                        </td>
+                        <td><button class="btn-msg" onclick="irAMensaje('{{ u.correo }}')">💬 Mensaje</button></td>
                     </tr>
                     {% else %}
                     <tr><td colspan="5" style="text-align:center; color:#4b5563; padding:30px;">No hay usuarios registrados aún.</td></tr>
@@ -173,67 +190,212 @@
         </div>
     </div>
 
-    <!-- ══ CARRITO ══════════════════════════════════════════ -->
+    <!-- ══ CARRITO DE COMPRAS ══════════════════════════════════ -->
     <div class="seccion" id="sec-carrito">
         <h2 class="seccion-titulo">🛒 Carrito de Compras</h2>
 
         <div class="row g-3 mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="numero" style="color:#f97316;">{{ carrito|length }}</div>
-                    <div class="etiqueta">Productos en carritos</div>
+                    <div class="numero" style="color:#67e8f9;" id="statPedidosNuevos">{{ pedidos_nuevos|length }}</div>
+                    <div class="etiqueta">Pedidos esperando aprobación</div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="numero" style="color:#06b6d4;">
-                        S/ {{ carrito | sum(attribute='precio') | int }}
-                    </div>
-                    <div class="etiqueta">Valor total en carritos</div>
+                    <div class="numero" style="color:#06b6d4;" id="statTotalCompras">0</div>
+                    <div class="etiqueta">Compras realizadas</div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="stat-card">
-                    <div class="numero" style="color:#8b5cf6;">
-                        {{ carrito | map(attribute='correo') | list | unique | list | length }}
-                    </div>
-                    <div class="etiqueta">Clientes con productos</div>
+                    <div class="numero" style="color:#f97316;" id="statValorCarrito">S/ 0</div>
+                    <div class="etiqueta">Valor entregado</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="numero" style="color:#ef4444;" id="statPendientes">0</div>
+                    <div class="etiqueta">Entregas pendientes</div>
                 </div>
             </div>
         </div>
 
-        <div class="admin-tabla">
-            <table>
-                <thead><tr><th>Cliente</th><th>Correo</th><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th>Acción</th></tr></thead>
-                <tbody>
-                    {% for item in carrito %}
-                    <tr>
-                        <td><strong>{{ item.nombre }}</strong></td>
-                        <td style="color:#06b6d4;">{{ item.correo }}</td>
-                        <td>{{ item.producto }}</td>
-                        <td style="color:#f97316;">S/ {{ item.precio }}</td>
-                        <td>{{ item.cantidad }}</td>
-                        <td style="color:#10b981; font-weight:700;">S/ {{ item.precio * item.cantidad }}</td>
-                        <td>
-                            <button class="btn-msg" onclick="irAMensaje('{{ item.correo }}', '{{ item.nombre }}')">💬 Consultar</button>
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr><td colspan="7" style="text-align:center; color:#4b5563; padding:30px;">No hay productos en carritos aún.</td></tr>
+        <div class="admin-tabla p-3 mb-3">
+            <input type="text" id="buscarCompra" class="inp-admin" style="margin-bottom:0;"
+                   placeholder="🔍 Buscar por correo, nombre del usuario o fecha (ej: andree, gmail.com, 2026-06)"
+                   onkeyup="filtrarCompras()">
+        </div>
+
+        <h4 style="color:#67e8f9; font-family:'Bangers'; letter-spacing:1px; margin:24px 0 10px;">⏳ Pedidos nuevos — esperando tu aprobación</h4>
+        <div id="listaPedidosNuevos">
+            {% for p in pedidos_nuevos %}
+            <div class="pedido-card fila-compra pedido-nuevo" data-correo="{{ p.correo|lower }}" data-nombre="{{ p.nombre|lower }}" data-fecha="{{ p.fecha|lower }}" data-pedido-id="{{ p.clave }}">
+                <div class="pedido-header">
+                    <div class="cliente-info">
+                        <strong>{{ p.nombre }}</strong> &nbsp;
+                        <span class="correo">{{ p.correo }}</span>
+                    </div>
+                    <div class="fecha">📅 {{ p.fecha }}</div>
+                    <div class="total-pedido">Total: S/ {{ "%.2f"|format(p.total) }}</div>
+                </div>
+                <div class="pedido-items">
+                    {% for item in p.productos %}
+                    <div class="pedido-item-row" data-item-id="{{ item.id }}">
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <span class="nombre-prod">{{ item.producto }}</span>
+                            {% if item.producto == 'Banderola' %}
+                            <span class="detalle-prod"> — {{ item.detalle }}</span>
+                            {% else %}
+                            <select class="sel-talla-admin" onchange="editarItemAdmin({{ item.id }}, null, this.value)">
+                                {% for t in tallas_validas %}
+                                <option value="{{ t }}" {{ 'selected' if item.talla == t else '' }}>Talla {{ t }}</option>
+                                {% endfor %}
+                            </select>
+                            {% endif %}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            {% if item.producto == 'Banderola' %}
+                            <div class="qty-control-admin" title="Ancho en metros">
+                                <button class="qty-btn-u" onclick="editarMetrosAdmin({{ item.id }}, {{ item.cantidad }}, -0.5)">−</button>
+                                <span style="color:#fff; font-weight:700; min-width:42px; text-align:center;">{{ "%.2f"|format(item.cantidad) }}m</span>
+                                <button class="qty-btn-u" onclick="editarMetrosAdmin({{ item.id }}, {{ item.cantidad }}, 0.5)">+</button>
+                            </div>
+                            {% else %}
+                            <div class="qty-control-admin">
+                                <button class="qty-btn-u" onclick="editarItemAdminCantidad({{ item.id }}, {{ item.cantidad }}, -1)">−</button>
+                                <span style="color:#fff; font-weight:700; min-width:24px; text-align:center;">{{ item.cantidad }}</span>
+                                <button class="qty-btn-u" onclick="editarItemAdminCantidad({{ item.id }}, {{ item.cantidad }}, 1)">+</button>
+                            </div>
+                            {% endif %}
+                            <span class="precio-prod">S/ {{ "%.2f"|format(item.precio * item.cantidad) }}</span>
+                            <button class="btn-icon-del" onclick="eliminarItemAdmin({{ item.id }})" title="Quitar producto">🗑️</button>
+                        </div>
+                    </div>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+                <!-- Formulario para agregar producto al pedido -->
+                <div class="agregar-prod-box">
+                    <span style="color:#9ca3af; font-size:0.82rem; font-weight:700;">➕ Agregar producto al pedido:</span>
+                    <select class="sel-admin" id="prod-nuevo-{{ p.clave }}">
+                        <option value="Camiseta">Camiseta (S/30)</option>
+                        <option value="Camiseta + Short + Medias">Camiseta+Short+Medias (S/55)</option>
+                        <option value="Bividi">Bividi (S/20)</option>
+                        <option value="Short">Short (S/20)</option>
+                        <option value="Banderola">Banderola (S/40 por metro)</option>
+                    </select>
+                    <select class="sel-admin" id="talla-nueva-{{ p.clave }}">
+                        {% for t in tallas_validas %}<option value="{{ t }}">Talla {{ t }}</option>{% endfor %}
+                        <option value="__metros__">Metros (banderola)</option>
+                    </select>
+                    <input type="number" class="inp-cant-admin" id="cant-nueva-{{ p.clave }}" min="1" value="1" placeholder="Cant.">
+                    <button class="btn-add-prod" onclick="agregarProductoPedido('{{ p.clave }}', '{{ p.correo }}')">Agregar</button>
+                </div>
+                <div class="pedido-footer" style="justify-content:space-between;">
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-aceptar-pedido" onclick="aceptarPedido('{{ p.clave }}')">✅ Aceptar pedido</button>
+                        <button class="btn-rechazar-pedido" onclick="rechazarPedido('{{ p.clave }}')">❌ Rechazar</button>
+                    </div>
+                    <button class="btn-msg" onclick="irAMensaje('{{ p.correo }}')">💬 Escribirle</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="admin-tabla" style="padding:25px; text-align:center; color:#4b5563;">No hay pedidos nuevos por aprobar.</div>
+            {% endfor %}
+        </div>
+
+        <h4 style="color:#6ee7b7; font-family:'Bangers'; letter-spacing:1px; margin:30px 0 10px;">✅ Pedidos aceptados</h4>
+        <div id="listaPedidosAceptados">
+            {% for p in pedidos_aceptados %}
+            <div class="pedido-card fila-compra" data-correo="{{ p.correo|lower }}" data-nombre="{{ p.nombre|lower }}" data-fecha="{{ p.fecha|lower }}" data-pedido-id="{{ p.clave }}">
+                <div class="pedido-header">
+                    <div class="cliente-info">
+                        <strong>{{ p.nombre }}</strong> &nbsp;
+                        <span class="correo">{{ p.correo }}</span>
+                    </div>
+                    <div class="fecha">📅 {{ p.fecha }}</div>
+                    <div class="total-pedido">Total: S/ {{ "%.2f"|format(p.total) }}</div>
+                </div>
+                <div class="pedido-items">
+                    {% for item in p.productos %}
+                    <div class="pedido-item-row" data-item-id="{{ item.id }}">
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <span class="nombre-prod">{{ item.producto }}</span>
+                            {% if item.producto == 'Banderola' %}
+                            <span class="detalle-prod"> — {{ item.detalle }}</span>
+                            {% else %}
+                            <select class="sel-talla-admin" onchange="editarItemAdmin({{ item.id }}, null, this.value)">
+                                {% for t in tallas_validas %}
+                                <option value="{{ t }}" {{ 'selected' if item.talla == t else '' }}>Talla {{ t }}</option>
+                                {% endfor %}
+                            </select>
+                            {% endif %}
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            {% if item.producto == 'Banderola' %}
+                            <div class="qty-control-admin" title="Ancho en metros">
+                                <button class="qty-btn-u" onclick="editarMetrosAdmin({{ item.id }}, {{ item.cantidad }}, -0.5)">−</button>
+                                <span style="color:#fff; font-weight:700; min-width:42px; text-align:center;">{{ "%.2f"|format(item.cantidad) }}m</span>
+                                <button class="qty-btn-u" onclick="editarMetrosAdmin({{ item.id }}, {{ item.cantidad }}, 0.5)">+</button>
+                            </div>
+                            {% else %}
+                            <div class="qty-control-admin">
+                                <button class="qty-btn-u" onclick="editarItemAdminCantidad({{ item.id }}, {{ item.cantidad }}, -1)">−</button>
+                                <span style="color:#fff; font-weight:700; min-width:24px; text-align:center;">{{ item.cantidad }}</span>
+                                <button class="qty-btn-u" onclick="editarItemAdminCantidad({{ item.id }}, {{ item.cantidad }}, 1)">+</button>
+                            </div>
+                            {% endif %}
+                            <span class="precio-prod">S/ {{ "%.2f"|format(item.precio * item.cantidad) }}</span>
+                            <button class="pill-entrega {{ 'pill-entregado' if item.entrega == 'entregado' else 'pill-pendiente' }}"
+                                    onclick="toggleEntrega({{ item.id }})">
+                                {% if item.entrega == 'entregado' %}✅ Entregado{% else %}⏳ Falta de entrega{% endif %}
+                            </button>
+                            <button class="btn-icon-del" onclick="eliminarItemAdmin({{ item.id }})" title="Quitar producto">🗑️</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <!-- Formulario para agregar producto al pedido aceptado -->
+                <div class="agregar-prod-box">
+                    <span style="color:#9ca3af; font-size:0.82rem; font-weight:700;">➕ Agregar producto al pedido:</span>
+                    <select class="sel-admin" id="prod-nuevo-{{ p.clave }}">
+                        <option value="Camiseta">Camiseta (S/30)</option>
+                        <option value="Camiseta + Short + Medias">Camiseta+Short+Medias (S/55)</option>
+                        <option value="Bividi">Bividi (S/20)</option>
+                        <option value="Short">Short (S/20)</option>
+                        <option value="Banderola">Banderola (S/40 por metro)</option>
+                    </select>
+                    <select class="sel-admin" id="talla-nueva-{{ p.clave }}">
+                        {% for t in tallas_validas %}<option value="{{ t }}">Talla {{ t }}</option>{% endfor %}
+                        <option value="__metros__">Metros (banderola)</option>
+                    </select>
+                    <input type="number" class="inp-cant-admin" id="cant-nueva-{{ p.clave }}" min="0.5" step="0.5" value="1" placeholder="Cant.">
+                    <button class="btn-add-prod" onclick="agregarProductoPedido('{{ p.clave }}', '{{ p.correo }}')">Agregar</button>
+                </div>
+                <div class="pedido-footer" style="justify-content:space-between;">
+                    <div class="adelanto-box">
+                        <label>💰 Adelanto pagado:</label>
+                        <span>S/</span>
+                        <input type="number" class="inp-adelanto" min="0" step="0.01"
+                               value="{{ '%.2f'|format(p.adelanto) }}"
+                               onblur="guardarAdelanto('{{ p.clave }}', this.value)">
+                        <span class="adelanto-de-total">de S/ {{ "%.2f"|format(p.total) }}</span>
+                    </div>
+                    <button class="btn-msg" onclick="irAMensaje('{{ p.correo }}')">💬 Escribirle</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="admin-tabla" style="padding:25px; text-align:center; color:#4b5563;">No hay pedidos aceptados aún.</div>
+            {% endfor %}
         </div>
     </div>
 
     <!-- ══ MENSAJES ══════════════════════════════════════════ -->
     <div class="seccion" id="sec-mensajes">
         <h2 class="seccion-titulo">💬 Mensajes</h2>
-
         <div class="admin-tabla">
-            <div class="row g-0" style="min-height:420px;">
-                <!-- Lista usuarios -->
-                <div class="col-md-4 usuarios-lista">
+            <div class="chat-wrapper-row">
+                <div class="usuarios-lista" id="listaConversaciones">
                     <div style="padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.08);">
                         <p style="color:#9ca3af; font-size:0.8rem; margin:0; font-weight:700; text-transform:uppercase;">Conversaciones</p>
                     </div>
@@ -246,38 +408,38 @@
                     {% for correo_u in usuarios_con_msg %}
                     {% set msgs_usuario = mensajes | selectattr('de', 'equalto', correo_u) | list %}
                     {% set no_leidos = mensajes | selectattr('de', 'equalto', correo_u) | selectattr('leido', 'equalto', false) | list | length %}
-                    <div class="usuario-chat-item" id="chat-item-{{ loop.index }}" onclick="abrirChat('{{ correo_u }}', '{{ msgs_usuario[0].nombre if msgs_usuario else correo_u }}')">
+                    <div class="usuario-chat-item" data-correo="{{ correo_u }}" onclick="abrirChat('{{ correo_u }}')">
                         <div class="usuario-avatar">{{ (msgs_usuario[0].nombre if msgs_usuario else correo_u)[0]|upper }}</div>
                         <div style="flex:1; min-width:0;">
                             <h6>{{ msgs_usuario[0].nombre if msgs_usuario else correo_u }}</h6>
                             <small>{{ correo_u }}</small>
                         </div>
-                        {% if no_leidos > 0 %}
-                        <span class="sidebar-notif">{{ no_leidos }}</span>
-                        {% endif %}
+                        {% if no_leidos > 0 %}<span class="sidebar-notif">{{ no_leidos }}</span>{% endif %}
                     </div>
                     {% else %}
                     <div style="padding:30px; text-align:center; color:#4b5563;">
-                        <p style="font-size:2rem;">💬</p>
-                        <p style="font-size:0.85rem;">No hay mensajes aún.</p>
+                        <p style="font-size:2rem;">💬</p><p style="font-size:0.85rem;">No hay mensajes aún.</p>
                     </div>
                     {% endfor %}
                 </div>
-                <!-- Panel chat -->
-                <div class="col-md-8">
-                    <div class="chat-panel">
-                        <div class="chat-mensajes" id="chatAdminMensajes">
-                            <div class="chat-sin-seleccion">
-                                <div>
-                                    <p style="font-size:2rem;">👈</p>
-                                    <p>Selecciona una conversación</p>
-                                </div>
+                <div style="flex:1; min-width:0; height:100%; display:flex; flex-direction:column;">
+                    <div id="chatAdminMensajes" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:10px; background:#0b1220;">
+                        <div style="margin:auto; text-align:center; color:#4b5563;">
+                            <p style="font-size:2rem;">👈</p>
+                            <p>Selecciona una conversación</p>
+                        </div>
+                    </div>
+                    <div id="chatAdminInput" style="display:none; padding:12px; border-top:1px solid rgba(255,255,255,0.08); gap:8px; align-items:flex-end; background:#111827;">
+                        <input type="file" id="inputImagenAdmin" accept="image/*" style="display:none;" onchange="previsualizarImagenAdmin(event)">
+                        <button class="btn-adjuntar" onclick="document.getElementById('inputImagenAdmin').click()" title="Adjuntar imagen">📎</button>
+                        <div style="flex:1;">
+                            <div id="previewImagenAdmin" style="display:none; position:relative; margin-bottom:8px;">
+                                <img id="previewImgAdmin" src="" style="max-height:80px; border-radius:8px;">
+                                <button onclick="quitarPreviewAdmin()" style="position:absolute;top:-8px;left:68px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:0.7rem;cursor:pointer;">✕</button>
                             </div>
+                            <textarea id="txtAdminMsg" rows="2" placeholder="Escribe tu respuesta..." style="width:100%; background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:8px; padding:10px; font-family:Montserrat; font-size:0.88rem; resize:none; outline:none;"></textarea>
                         </div>
-                        <div class="chat-input-area" id="chatAdminInput" style="display:none;">
-                            <textarea id="txtAdminMsg" rows="2" placeholder="Escribe tu respuesta..."></textarea>
-                            <button class="btn-send" onclick="enviarAdminMsg()">➤</button>
-                        </div>
+                        <button onclick="enviarAdminMsg()" style="background:#f97316; color:#fff; border:none; border-radius:8px; padding:10px 16px; font-weight:800; cursor:pointer; font-size:1rem;">➤</button>
                     </div>
                 </div>
             </div>
@@ -287,86 +449,56 @@
     <!-- ══ DASHBOARD ═════════════════════════════════════════ -->
     <div class="seccion" id="sec-dashboard">
         <h2 class="seccion-titulo">📊 Dashboard</h2>
-
-        <!-- Stats rápidos -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="numero" style="color:#06b6d4;">{{ usuarios|length }}</div>
-                    <div class="etiqueta">Usuarios registrados</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="numero" style="color:#f97316;">{{ ventas|length }}</div>
-                    <div class="etiqueta">Productos vendidos</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="numero" style="color:#8b5cf6;">{{ mensajes|length }}</div>
-                    <div class="etiqueta">Mensajes recibidos</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-card">
-                    <div class="numero" style="color:#10b981;">
-                        S/ {{ ventas | sum(attribute='precio') | int }}
-                    </div>
-                    <div class="etiqueta">Ganancias totales</div>
-                </div>
-            </div>
+            <div class="col-md-3"><div class="stat-card"><div class="numero" style="color:#06b6d4;">{{ usuarios|length }}</div><div class="etiqueta">Usuarios registrados</div></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="numero" style="color:#f97316;" id="dashProductosVendidos">0</div><div class="etiqueta">Productos entregados</div></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="numero" style="color:#8b5cf6;">{{ mensajes|length }}</div><div class="etiqueta">Mensajes recibidos</div></div></div>
+            <div class="col-md-3"><div class="stat-card"><div class="numero" style="color:#10b981;" id="dashGanancias">S/ 0</div><div class="etiqueta">Ganancias totales</div></div></div>
         </div>
-
-        <!-- Gráficas -->
         <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h6>📈 Usuarios registrados por mes</h6>
-                    <canvas id="chartUsuarios" height="200"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h6>💰 Ganancias mensuales (S/)</h6>
-                    <canvas id="chartGanancias" height="200"></canvas>
-                </div>
-            </div>
+            <div class="col-md-6"><div class="chart-card"><h6>📈 Usuarios registrados por mes</h6><canvas id="chartUsuarios" height="200"></canvas></div></div>
+            <div class="col-md-6"><div class="chart-card"><h6>💰 Ganancias mensuales (S/) — solo entregados</h6><canvas id="chartGanancias" height="200"></canvas></div></div>
         </div>
         <div class="row g-3">
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h6>🛒 Productos más vendidos</h6>
-                    <canvas id="chartProductos" height="200"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-card">
-                    <h6>💬 Mensajes recibidos por mes</h6>
-                    <canvas id="chartMensajes" height="200"></canvas>
-                </div>
-            </div>
+            <div class="col-md-6"><div class="chart-card"><h6>🛒 Productos más vendidos (entregados)</h6><canvas id="chartProductos" height="200"></canvas></div></div>
+            <div class="col-md-6"><div class="chart-card"><h6>💬 Mensajes recibidos por mes</h6><canvas id="chartMensajes" height="200"></canvas></div></div>
         </div>
     </div>
 
-</div><!-- fin main-content -->
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// ── DATOS DEL SERVIDOR ──
 const dataUsuarios = {{ usuarios | tojson }};
-const dataVentas   = {{ ventas   | tojson }};
+const dataCompras  = {{ compras  | tojson }}.filter(c => c.estado === "aceptado");  // stats y dashboard solo cuentan lo ya aceptado por la tienda
 const dataMensajes = {{ mensajes | tojson }};
-let chatCorreoActual = "";
-
-// ── NAVEGACIÓN SIDEBAR ──
 function mostrarSeccion(id) {
     document.querySelectorAll(".seccion").forEach(s => s.classList.remove("active"));
     document.querySelectorAll(".sidebar-btn").forEach(b => b.classList.remove("active"));
     document.getElementById("sec-" + id).classList.add("active");
     document.getElementById("btn-" + id).classList.add("active");
-    if (id === "dashboard") renderGraficas();
+    sessionStorage.setItem("adminSeccion", id);
+    if (id === "dashboard") setTimeout(renderGraficas, 50);
+    if (id === "carrito") actualizarStatsCarrito();
 }
+// Al cargar la página, volver a la sección donde estaba
+(function() {
+    const sec = sessionStorage.getItem("adminSeccion");
+    if (sec && document.getElementById("sec-" + sec)) {
+        mostrarSeccion(sec);
+        if (sec === "mensajes") {
+            const correo = sessionStorage.getItem("adminChatCorreo");
+            if (correo) {
+                // mostrar el input inmediatamente sin esperar abrirChat
+                const inp = document.getElementById("chatAdminInput");
+                if (inp) inp.style.display = "flex";
+                activarPasteImagenAdmin();
+                // luego abrir el chat completo (con scroll y mensajes)
+                setTimeout(() => abrirChat(correo), 150);
+            }
+        }
+    }
+})();
 
 // ── USUARIOS ──
 function accionUsuario(accion) {
@@ -376,20 +508,16 @@ function accionUsuario(accion) {
     const msg      = document.getElementById("msgUsuario");
     if (!correo) { mostrarMsg(msg, "Ingresa el correo del usuario.", false); return; }
     fetch("/api/admin/usuario", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
+        method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({accion, correo, nombre, password})
     })
     .then(r => r.json())
     .then(d => {
         mostrarMsg(msg, d.mensaje, d.success);
-        if (d.success && accion === "buscar" && d.usuario) {
-            document.getElementById("uNombre").value = d.usuario.nombre;
-        }
+        if (d.success && accion === "buscar" && d.usuario) document.getElementById("uNombre").value = d.usuario.nombre;
         if (d.success && accion !== "buscar") setTimeout(() => location.reload(), 1200);
     });
 }
-
 function mostrarMsg(el, texto, ok) {
     el.textContent = texto;
     el.className = ok ? "msg-admin-ok" : "msg-admin-error";
@@ -397,138 +525,338 @@ function mostrarMsg(el, texto, ok) {
     setTimeout(() => { el.style.display = "none"; }, 3500);
 }
 
+// ── CARRITO DE COMPRAS (admin) ──
+function toggleEntrega(id) {
+    fetch("/api/admin/compra/entrega", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({id})
+    }).then(r => r.json()).then(() => location.reload());
+}
+function eliminarCompra(id) {
+    if (!confirm("¿Eliminar esta compra del registro?")) return;
+    fetch("/api/admin/compra/eliminar", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({id})
+    }).then(r => r.json()).then(() => location.reload());
+}
+
+// ── ACEPTAR / RECHAZAR PEDIDO ──
+function aceptarPedido(pedidoId) {
+    if (!confirm("¿Aceptar este pedido? El cliente ya no podrá modificarlo desde su cuenta.")) return;
+    fetch("/api/admin/pedido/aceptar", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({pedido_id: pedidoId})
+    }).then(r => r.json()).then(() => location.reload());
+}
+function rechazarPedido(pedidoId) {
+    if (!confirm("¿Rechazar este pedido? Se notificará al cliente.")) return;
+    fetch("/api/admin/pedido/rechazar", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({pedido_id: pedidoId})
+    }).then(r => r.json()).then(() => location.reload());
+}
+
+// ── EDICIÓN DE ITEMS POR EL ADMIN (antes o después de aceptado) ──
+function editarItemAdmin(id, cantidad, talla) {
+    fetch("/api/admin/pedido/editar_item", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id, cantidad, talla})
+    }).then(r => r.json()).then(() => location.reload());
+}
+function editarItemAdminCantidad(id, cantidadActual, delta) {
+    const nueva = cantidadActual + delta;
+    if (nueva <= 0) {
+        if (!confirm("La cantidad llegaría a 0. ¿Quieres quitar este producto del pedido?\n\nEsta acción notificará al cliente.")) return;
+        eliminarItemAdmin(id);
+        return;
+    }
+    if (!confirm(`¿Estás seguro de modificar la cantidad a ${nueva}?\n\nEl cliente recibirá una notificación del cambio.`)) return;
+    fetch("/api/admin/pedido/editar_item", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id, cantidad: nueva})
+    }).then(r => r.json()).then(() => location.reload());
+}
+function editarMetrosAdmin(id, metrosActual, delta) {
+    const nuevo = Math.round((metrosActual + delta) * 100) / 100;
+    if (nuevo <= 0) {
+        if (!confirm("Los metros llegarían a 0. ¿Quieres quitar esta banderola del pedido?\n\nEsta acción notificará al cliente.")) return;
+        eliminarItemAdmin(id);
+        return;
+    }
+    if (nuevo > 100) { alert("El máximo son 100 metros."); return; }
+    if (!confirm(`¿Estás seguro de cambiar el ancho a ${nuevo} metros?\n\nEl cliente recibirá una notificación del cambio.`)) return;
+    fetch("/api/admin/pedido/editar_item", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id, metros: nuevo})
+    }).then(r => r.json()).then(() => location.reload());
+}
+function editarItemAdmin(id, cantidad, talla) {
+    if (talla && !confirm(`¿Estás seguro de cambiar la talla a ${talla}?\n\nEl cliente recibirá una notificación del cambio.`)) {
+        // revertir el select al valor anterior recargando
+        location.reload();
+        return;
+    }
+    fetch("/api/admin/pedido/editar_item", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id, cantidad, talla})
+    }).then(r => r.json()).then(() => location.reload());
+}
+function eliminarItemAdmin(id) {
+    if (!confirm("¿Quitar este producto del pedido?\n\nEsta acción notificará al cliente.")) return;
+    fetch("/api/admin/pedido/eliminar_item", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({id})
+    }).then(r => r.json()).then(() => location.reload());
+}
+
+// ── AGREGAR PRODUCTO A PEDIDO EXISTENTE (admin) ──
+const PRECIOS_ADMIN = {
+    "Camiseta": 30, "Camiseta + Short + Medias": 55, "Bividi": 20, "Short": 20, "Banderola": 40
+};
+function agregarProductoPedido(pedidoId, correoCliente) {
+    const producto = document.getElementById("prod-nuevo-" + pedidoId).value;
+    const tallaVal = document.getElementById("talla-nueva-" + pedidoId).value;
+    const cantVal  = parseFloat(document.getElementById("cant-nueva-" + pedidoId).value);
+    if (!cantVal || cantVal <= 0) { alert("Pon una cantidad válida."); return; }
+
+    const resumen = producto === "Banderola"
+        ? `${cantVal} metros de Banderola`
+        : `${cantVal} x ${producto} talla ${tallaVal}`;
+    if (!confirm(`¿Agregar al pedido: ${resumen}?\n\nEl cliente recibirá una notificación del cambio.`)) return;
+
+    let payload = { pedido_id: pedidoId, correo_cliente: correoCliente, producto, precio: PRECIOS_ADMIN[producto] || 0 };
+    if (producto === "Banderola") {
+        payload.metros = cantVal;
+    } else {
+        if (tallaVal === "__metros__") { alert("Selecciona una talla para este producto."); return; }
+        payload.talla    = tallaVal;
+        payload.cantidad = cantVal;
+    }
+    fetch("/api/admin/pedido/agregar_item", {
+        method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)
+    }).then(r => r.json()).then(d => {
+        if (d.success) location.reload();
+        else alert(d.mensaje || "No se pudo agregar el producto.");
+    });
+}
+
+// ── ADELANTO ──
+function guardarAdelanto(pedidoId, monto) {
+    fetch("/api/admin/pedido/adelanto", {
+        method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({pedido_id: pedidoId, adelanto: monto})
+    }).then(r => r.json()).then(d => {
+        if (!d.success) alert("No se pudo guardar el adelanto.");
+    });
+}
+
+function filtrarCompras() {
+    const texto = document.getElementById("buscarCompra").value.toLowerCase();
+    document.querySelectorAll(".fila-compra").forEach(fila => {
+        const coincide = fila.dataset.correo.includes(texto) || fila.dataset.nombre.includes(texto) || fila.dataset.fecha.includes(texto);
+        fila.style.display = coincide ? "" : "none";
+    });
+}
+function actualizarStatsCarrito() {
+    const totalCompras = dataCompras.length;
+    const entregados    = dataCompras.filter(c => c.entrega === "entregado");
+    const pendientes    = dataCompras.filter(c => c.entrega !== "entregado");
+    const valorEntregado = entregados.reduce((s, c) => s + (c.precio * c.cantidad), 0);
+    const clientesUnicos = new Set(dataCompras.map(c => c.correo)).size;
+    document.getElementById("statTotalCompras").textContent = totalCompras;
+    document.getElementById("statValorCarrito").textContent = "S/ " + valorEntregado.toFixed(2);
+    document.getElementById("statPendientes").textContent = pendientes.length;
+    document.getElementById("statClientes").textContent = clientesUnicos;
+}
+actualizarStatsCarrito();
+
 // ── CHAT ADMIN ──
-function abrirChat(correo, nombre) {
+var imagenBase64Admin = null;
+var chatCorreoActual = sessionStorage.getItem("adminChatCorreo") || "";
+
+function previsualizarImagenAdmin(event) {
+    var file = event.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        imagenBase64Admin = e.target.result;
+        document.getElementById("previewImgAdmin").src = imagenBase64Admin;
+        document.getElementById("previewImagenAdmin").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+}
+
+function quitarPreviewAdmin() {
+    imagenBase64Admin = null;
+    document.getElementById("inputImagenAdmin").value = "";
+    document.getElementById("previewImagenAdmin").style.display = "none";
+}
+
+function abrirChat(correo) {
     chatCorreoActual = correo;
-    document.querySelectorAll(".usuario-chat-item").forEach(i => i.classList.remove("active"));
+    sessionStorage.setItem("adminChatCorreo", correo);
+    var items = document.querySelectorAll(".usuario-chat-item");
+    for (var i = 0; i < items.length; i++) { items[i].classList.remove("active"); }
+    var item = document.querySelector(".usuario-chat-item[data-correo=\"" + correo + "\"]");
+    if (item) item.classList.add("active");
     document.getElementById("chatAdminInput").style.display = "flex";
     cargarChatAdmin(correo);
 }
 
 function cargarChatAdmin(correo) {
-    fetch("/api/admin/mensajes/hilo?correo=" + correo)
-    .then(r => r.json())
-    .then(hilo => {
-        const box = document.getElementById("chatAdminMensajes");
-        if (!hilo.length) {
-            box.innerHTML = '<div class="chat-sin-seleccion"><div><p style="font-size:2rem">📭</p><p>Sin mensajes con este usuario</p></div></div>';
+    fetch("/api/admin/mensajes/hilo?correo=" + encodeURIComponent(correo))
+    .then(function(r) { return r.json(); })
+    .then(function(hilo) {
+        var box = document.getElementById("chatAdminMensajes");
+        if (!hilo || !hilo.length) {
+            box.innerHTML = "<div style='margin:auto;text-align:center;color:#4b5563;'><p style='font-size:2rem'>📭</p><p>Sin mensajes con este usuario</p></div>";
             return;
         }
-        let html = "";
-        hilo.forEach(m => {
-            const esAdmin = m.de === "admin";
-            html += `<div style="display:flex;flex-direction:column;align-items:${esAdmin ? 'flex-end' : 'flex-start'}">
-                <div class="msg-burbuja ${esAdmin ? 'msg-admin-out' : 'msg-user-in'}">
-                    ${!esAdmin ? `<strong style="display:block;color:#06b6d4;font-size:0.78rem;margin-bottom:3px;">${m.nombre}</strong>` : ''}
-                    ${m.texto}
-                    <div class="msg-fecha-chat" style="text-align:${esAdmin ? 'right' : 'left'}">${m.fecha}</div>
-                </div>
-            </div>`;
-        });
+        var html = "";
+        for (var i = 0; i < hilo.length; i++) {
+            var m = hilo[i];
+            var esAdmin = m.de === "admin";
+            var alineacion = esAdmin ? "flex-end" : "flex-start";
+            var clase = esAdmin ? "msg-burbuja msg-admin-out" : "msg-burbuja msg-user-in";
+            var nombre = (!esAdmin) ? "<strong style='display:block;color:#06b6d4;font-size:0.78rem;margin-bottom:3px;'>" + m.nombre + "</strong>" : "";
+            var imgTag = m.imagen ? "<img src='/static/" + m.imagen + "' style='max-width:100%;border-radius:8px;margin-bottom:6px;display:block;cursor:pointer;' onclick='window.open(this.src)'>" : "";
+            var texto = m.texto || "";
+            var fecha = m.fecha || "";
+            var textoAlin = esAdmin ? "right" : "left";
+            html += "<div style='display:flex;flex-direction:column;align-items:" + alineacion + ";'>";
+            html += "<div class='" + clase + "'>";
+            html += nombre + imgTag + texto;
+            html += "<div style='font-size:0.7rem;opacity:0.6;margin-top:3px;text-align:" + textoAlin + ";'>" + fecha + "</div>";
+            html += "</div></div>";
+        }
         box.innerHTML = html;
         box.scrollTop = box.scrollHeight;
-        // Limpiar notificación
         actualizarNotifSidebar();
-    });
+    })
+    .catch(function(err) { console.error("Error cargando chat:", err); });
 }
 
 function enviarAdminMsg() {
-    const texto = document.getElementById("txtAdminMsg").value.trim();
-    if (!texto || !chatCorreoActual) return;
+    var correo = chatCorreoActual;
+    if (!correo) {
+        console.warn("No hay conversacion activa");
+        return;
+    }
+    var txtEl = document.getElementById("txtAdminMsg");
+    var texto = txtEl ? txtEl.value.trim() : "";
+    if (!texto && !imagenBase64Admin) return;
+    var payload = {para: correo, texto: texto, imagen: imagenBase64Admin};
     fetch("/api/admin/mensaje", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({para: chatCorreoActual, texto})
+        body: JSON.stringify(payload)
     })
-    .then(r => r.json())
-    .then(d => {
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
         if (d.success) {
-            document.getElementById("txtAdminMsg").value = "";
-            cargarChatAdmin(chatCorreoActual);
+            txtEl.value = "";
+            imagenBase64Admin = null;
+            document.getElementById("previewImagenAdmin").style.display = "none";
+            cargarChatAdmin(correo);
+        } else {
+            console.error("Error del servidor:", d);
         }
-    });
+    })
+    .catch(function(err) { console.error("Error de red:", err); });
 }
 
 document.addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && !e.shiftKey && document.getElementById("txtAdminMsg") === document.activeElement) {
-        e.preventDefault(); enviarAdminMsg();
+    var txt = document.getElementById("txtAdminMsg");
+    if (e.key === "Enter" && !e.shiftKey && txt && txt === document.activeElement) {
+        e.preventDefault();
+        enviarAdminMsg();
     }
 });
 
-function irAMensaje(correo, nombre) {
+// Ctrl+V para pegar imagen en el textarea del admin
+document.addEventListener("paste", function(e) {
+    var txt = document.getElementById("txtAdminMsg");
+    if (!txt || txt !== document.activeElement) return;
+    var items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+            e.preventDefault();
+            var file = items[i].getAsFile();
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                imagenBase64Admin = ev.target.result;
+                document.getElementById("previewImgAdmin").src = imagenBase64Admin;
+                document.getElementById("previewImagenAdmin").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+            break;
+        }
+    }
+});
+
+function irAMensaje(correo) {
     mostrarSeccion("mensajes");
-    setTimeout(() => abrirChat(correo, nombre), 200);
+    setTimeout(function() { abrirChat(correo); }, 200);
 }
 
-// ── NOTIFICACIONES ADMIN ──
 function actualizarNotifSidebar() {
     fetch("/api/admin/notif")
-    .then(r => r.json())
-    .then(d => {
-        const el = document.getElementById("notifSidebar");
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        var el = document.getElementById("notifSidebar");
         if (d.count > 0) {
             el.textContent = d.count;
             el.style.display = "flex";
-            document.title = `(${d.count}) Admin - Wampar Sport`;
+            document.title = "(" + d.count + ") Admin - Wampar Sport";
         } else {
             el.style.display = "none";
             document.title = "Panel Admin - Wampar Sport";
         }
     });
 }
-setInterval(actualizarNotifSidebar, 8000);
+setInterval(function() {
+    if (chatCorreoActual) cargarChatAdmin(chatCorreoActual);
+    actualizarNotifSidebar();
+}, 8000);
 
-// ── GRÁFICAS ──
-let graficasRenderizadas = false;
+// ── GRÁFICAS (solo cuenta lo ENTREGADO) ──
+function destruirChart(id) {
+    const c = Chart.getChart(id);
+    if (c) c.destroy();
+}
 function renderGraficas() {
-    if (graficasRenderizadas) return;
-    graficasRenderizadas = true;
+    const entregados = dataCompras.filter(c => c.entrega === "entregado");
+    const ganancias  = entregados.reduce((s, c) => s + (c.precio * c.cantidad), 0);
+    const totalItemsEntregados = entregados.reduce((s, c) => s + c.cantidad, 0);
+    document.getElementById("dashGanancias").textContent = "S/ " + ganancias.toFixed(2);
+    document.getElementById("dashProductosVendidos").textContent = totalItemsEntregados.toFixed(2).replace(/\.00$/, "");
 
-    const colores = ["#f97316","#06b6d4","#8b5cf6","#10b981","#ef4444","#f59e0b"];
     const meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const colores = ["#f97316","#06b6d4","#8b5cf6","#10b981","#ef4444","#f59e0b"];
 
-    function contarPorMes(arr, campo) {
-        const counts = {};
-        arr.forEach(item => {
-            const fecha = item[campo] || "";
-            const mes = fecha.slice(5,7);
-            const mesNom = meses[parseInt(mes)-1] || fecha;
-            counts[mesNom] = (counts[mesNom] || 0) + 1;
-        });
-        return counts;
+    function mesDe(fecha) {
+        const m = (fecha || "").slice(5,7);
+        return meses[parseInt(m)-1] || fecha;
     }
 
-    function sumarPorMes(arr) {
-        const sums = {};
-        arr.forEach(item => {
-            const fecha = item.fecha || "";
-            const mes = fecha.slice(5,7);
-            const mesNom = meses[parseInt(mes)-1] || fecha;
-            sums[mesNom] = (sums[mesNom] || 0) + (item.precio || 0);
-        });
-        return sums;
-    }
+    // Usuarios por mes
+    const uMes = {};
+    dataUsuarios.forEach(u => { const m = mesDe(u.fecha); uMes[m] = (uMes[m]||0)+1; });
 
-    function contarProductos(arr) {
-        const counts = {};
-        arr.forEach(v => { counts[v.producto] = (counts[v.producto]||0)+1; });
-        return counts;
-    }
+    // Ganancias por mes (solo entregados)
+    const gMes = {};
+    entregados.forEach(c => { const m = mesDe(c.fecha); gMes[m] = (gMes[m]||0) + (c.precio * c.cantidad); });
+
+    // Productos más vendidos (solo entregados, por CANTIDAD)
+    const prod = {};
+    entregados.forEach(c => { prod[c.producto] = (prod[c.producto]||0) + c.cantidad; });
+
+    // Mensajes por mes
+    const mMes = {};
+    dataMensajes.forEach(m => { const mes = mesDe(m.fecha); mMes[mes] = (mMes[mes]||0)+1; });
 
     const cfg = (labels, data, color, tipo="bar") => ({
         type: tipo,
-        data: {
-            labels,
-            datasets: [{
-                data,
-                backgroundColor: tipo === "doughnut" ? colores : color + "99",
-                borderColor: tipo === "doughnut" ? colores : color,
-                borderWidth: 2,
-                borderRadius: 6,
-            }]
-        },
+        data: { labels, datasets: [{ data, backgroundColor: tipo === "doughnut" ? colores : color + "99", borderColor: tipo === "doughnut" ? colores : color, borderWidth: 2, borderRadius: 6 }] },
         options: {
-            responsive:true,
+            responsive: true,
+            maintainAspectRatio: true,
             plugins: { legend: { display: tipo==="doughnut", labels:{color:"#9ca3af",font:{family:"Montserrat"}} } },
             scales: tipo !== "doughnut" ? {
                 x: { ticks:{color:"#9ca3af"}, grid:{color:"rgba(255,255,255,0.05)"} },
@@ -537,21 +865,15 @@ function renderGraficas() {
         }
     });
 
-    // Usuarios por mes
-    const uMes = contarPorMes(dataUsuarios, "fecha");
-    new Chart("chartUsuarios", cfg(Object.keys(uMes), Object.values(uMes), "#06b6d4"));
+    destruirChart("chartUsuarios");
+    destruirChart("chartGanancias");
+    destruirChart("chartProductos");
+    destruirChart("chartMensajes");
 
-    // Ganancias por mes
-    const gMes = sumarPorMes(dataVentas);
-    new Chart("chartGanancias", cfg(Object.keys(gMes), Object.values(gMes), "#10b981"));
-
-    // Productos más vendidos
-    const prod = contarProductos(dataVentas);
-    new Chart("chartProductos", cfg(Object.keys(prod), Object.values(prod), "#f97316", "doughnut"));
-
-    // Mensajes por mes
-    const mMes = contarPorMes(dataMensajes, "fecha");
-    new Chart("chartMensajes", cfg(Object.keys(mMes), Object.values(mMes), "#8b5cf6"));
+    new Chart("chartUsuarios",  cfg(Object.keys(uMes),  Object.values(uMes),  "#06b6d4"));
+    new Chart("chartGanancias", cfg(Object.keys(gMes),  Object.values(gMes),  "#10b981"));
+    new Chart("chartProductos", cfg(Object.keys(prod),  Object.values(prod),  "#f97316", "doughnut"));
+    new Chart("chartMensajes",  cfg(Object.keys(mMes),  Object.values(mMes),  "#8b5cf6"));
 }
 </script>
 </body>

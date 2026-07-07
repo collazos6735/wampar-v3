@@ -19,13 +19,28 @@
         .msg-enviado { background:#f97316; color:#fff; align-self:flex-end; border-radius:16px 16px 4px 16px; }
         .msg-recibido { background:#1e293b; color:#e5e7eb; align-self:flex-start; border-radius:16px 16px 16px 4px; }
         .msg-fecha { font-size:0.72rem; opacity:0.6; margin-top:4px; }
-        .chat-footer { background:#111827; border:1px solid rgba(6,182,212,0.3); border-top:none; border-radius:0 0 15px 15px; padding:15px 20px; display:flex; gap:10px; }
+        .msg img.msg-imagen { max-width:100%; border-radius:10px; margin-bottom:6px; display:block; cursor:pointer; }
+        .chat-footer { background:#111827; border:1px solid rgba(6,182,212,0.3); border-top:none; border-radius:0 0 15px 15px; padding:15px 20px; display:flex; gap:10px; align-items:flex-end; }
         .chat-footer textarea { flex:1; background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#fff; border-radius:10px; padding:12px; resize:none; font-family:'Montserrat',sans-serif; font-size:0.9rem; }
         .chat-footer textarea:focus { outline:none; border-color:#06b6d4; }
         .btn-enviar { background:#f97316; color:#fff; border:none; border-radius:10px; padding:12px 20px; font-weight:800; cursor:pointer; transition:0.3s; }
         .btn-enviar:hover { background:#06b6d4; }
+        .btn-adjuntar { background:#1e293b; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:10px; padding:12px 14px; cursor:pointer; font-size:1.1rem; transition:0.3s; }
+        .btn-adjuntar:hover { background:#374151; }
         .empty-chat { text-align:center; margin:auto; color:#4b5563; }
         .empty-chat p { font-size:2rem; margin-bottom:10px; }
+        .preview-imagen { display:none; position:relative; margin-bottom:10px; }
+        .preview-imagen img { max-height:90px; border-radius:8px; }
+        .preview-imagen .quitar-preview { position:absolute; top:-8px; left:78px; background:#ef4444; color:#fff; border:none; border-radius:50%; width:22px; height:22px; font-size:0.75rem; cursor:pointer; }
+
+        /* Vista sin sesión */
+        .sin-sesion-box { max-width:520px; margin:60px auto; background:#0f172a; border:1px solid rgba(6,182,212,0.3); border-radius:16px; padding:35px 30px; text-align:center; }
+        .sin-sesion-box .icono { font-size:2.5rem; margin-bottom:10px; }
+        .sin-sesion-box h4 { color:#fff; font-weight:900; margin-bottom:10px; }
+        .sin-sesion-box p { color:#9ca3af; margin-bottom:6px; }
+        .sin-sesion-box .whatsapp-nota { color:#6ee7b7; font-size:0.92rem; margin-bottom:24px; }
+        .sin-sesion-box .whatsapp-nota a { color:#25D366; font-weight:700; text-decoration:none; }
+        .sin-sesion-botones { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
     </style>
 </head>
 <body>
@@ -35,13 +50,32 @@
             <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo" class="logo-navbar">
         </a>
         <div class="ms-auto d-flex align-items-center gap-3">
+            {% if not sin_sesion %}
             <span style="color:#06b6d4; font-weight:700;">Hola, {{ nombre }}</span>
+            {% endif %}
             <a href="{{ url_for('index') }}" style="color:#9ca3af; text-decoration:none; font-size:0.9rem;">← Volver</a>
+            {% if not sin_sesion %}
             <a href="{{ url_for('logout') }}" class="btn-banner" style="padding:7px 16px; font-size:0.82rem;">Salir</a>
+            {% endif %}
         </div>
     </div>
 </nav>
 
+{% if sin_sesion %}
+<!-- VISTA SIN SESIÓN -->
+<div class="sin-sesion-box">
+    <div class="icono">✉️</div>
+    <h4>¿Quieres contactarnos?</h4>
+    <p>Para enviarnos un mensaje necesitas tener una cuenta en Wampar Sport. Es rápido y gratuito.</p>
+    <p class="whatsapp-nota">O también puedes contactarnos directamente por WhatsApp al <a href="https://wa.me/51988566508" target="_blank">988 566 508</a>.</p>
+    <div class="sin-sesion-botones">
+        <a href="{{ url_for('registro') }}" class="btn-banner" style="background:#f97316;">Crear cuenta</a>
+        <a href="{{ url_for('login') }}" class="btn-banner" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;">Ya tengo cuenta</a>
+    </div>
+</div>
+
+{% else %}
+<!-- VISTA CON SESIÓN: CHAT -->
 <div class="chat-container">
     <div class="chat-header">
         <div class="chat-avatar">🏅</div>
@@ -62,7 +96,8 @@
         <div style="display:flex; flex-direction:column; align-items:{{ 'flex-end' if m.de == correo else 'flex-start' }}">
             <div class="msg {{ 'msg-enviado' if m.de == correo else 'msg-recibido' }}">
                 {% if m.de != correo %}<strong style="display:block; margin-bottom:4px; color:#06b6d4; font-size:0.8rem;">{{ m.nombre }}</strong>{% endif %}
-                {{ m.texto }}
+                {% if m.imagen %}<img src="{{ url_for('static', filename=m.imagen) }}" class="msg-imagen" onclick="window.open(this.src)">{% endif %}
+                {% if m.texto %}{{ m.texto }}{% endif %}
                 <div class="msg-fecha" style="text-align:{{ 'right' if m.de == correo else 'left' }}">{{ m.fecha }}</div>
             </div>
         </div>
@@ -71,32 +106,62 @@
     </div>
 
     <div class="chat-footer">
-        <textarea id="txtMensaje" rows="2" placeholder="Escribe tu mensaje..."></textarea>
+        <input type="file" id="inputImagen" accept="image/*" style="display:none;" onchange="previsualizarImagen(event)">
+        <button class="btn-adjuntar" onclick="document.getElementById('inputImagen').click()" title="Adjuntar imagen">📎</button>
+        <div style="flex:1;">
+            <div class="preview-imagen" id="previewImagen">
+                <img id="previewImg" src="">
+                <button class="quitar-preview" onclick="quitarPreview()">✕</button>
+            </div>
+            <textarea id="txtMensaje" rows="2" placeholder="Escribe tu mensaje..."></textarea>
+        </div>
         <button class="btn-enviar" onclick="enviarMensaje()">Enviar ➤</button>
     </div>
 
     <p style="color:#4b5563; font-size:0.8rem; text-align:center; margin-top:10px;">
-        Puedes consultarnos sobre modificaciones, pedidos, problemas o cualquier duda.
+        Puedes consultarnos sobre modificaciones, pedidos, problemas o cualquier duda. También puedes enviar fotos 📎.
     </p>
 </div>
+{% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+{% if not sin_sesion %}
 <script>
 const chatBox = document.getElementById("chatBox");
 chatBox.scrollTop = chatBox.scrollHeight;
+let imagenBase64Actual = null;
+
+function previsualizarImagen(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        imagenBase64Actual = e.target.result;
+        document.getElementById("previewImg").src = imagenBase64Actual;
+        document.getElementById("previewImagen").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+}
+
+function quitarPreview() {
+    imagenBase64Actual = null;
+    document.getElementById("inputImagen").value = "";
+    document.getElementById("previewImagen").style.display = "none";
+}
 
 function enviarMensaje() {
     const texto = document.getElementById("txtMensaje").value.trim();
-    if (!texto) return;
+    if (!texto && !imagenBase64Actual) return;
     fetch("/api/mensaje", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({texto})
+        body: JSON.stringify({texto, imagen: imagenBase64Actual})
     })
     .then(r => r.json())
     .then(d => {
         if (d.success) {
             document.getElementById("txtMensaje").value = "";
+            quitarPreview();
             cargarHilo();
         }
     });
@@ -111,10 +176,12 @@ function cargarHilo() {
         let html = "";
         hilo.forEach(m => {
             const esPropio = m.de === correo;
+            const imgHtml = m.imagen ? `<img src="/static/${m.imagen}" class="msg-imagen" onclick="window.open(this.src)">` : '';
             html += `<div style="display:flex;flex-direction:column;align-items:${esPropio ? 'flex-end' : 'flex-start'}">
                 <div class="msg ${esPropio ? 'msg-enviado' : 'msg-recibido'}">
                     ${!esPropio ? `<strong style="display:block;margin-bottom:4px;color:#06b6d4;font-size:0.8rem;">${m.nombre}</strong>` : ''}
-                    ${m.texto}
+                    ${imgHtml}
+                    ${m.texto || ''}
                     <div class="msg-fecha" style="text-align:${esPropio ? 'right' : 'left'}">${m.fecha}</div>
                 </div>
             </div>`;
@@ -128,7 +195,28 @@ document.getElementById("txtMensaje").addEventListener("keydown", function(e) {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarMensaje(); }
 });
 
+// Soporte de Ctrl+V para pegar imágenes desde el portapapeles
+document.getElementById("txtMensaje").addEventListener("paste", function(e) {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith("image/")) {
+            e.preventDefault();
+            const file = items[i].getAsFile();
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                imagenBase64Actual = ev.target.result;
+                document.getElementById("previewImg").src = imagenBase64Actual;
+                document.getElementById("previewImagen").style.display = "block";
+            };
+            reader.readAsDataURL(file);
+            break;
+        }
+    }
+});
+
 setInterval(cargarHilo, 5000);
 </script>
+{% endif %}
 </body>
 </html>

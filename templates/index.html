@@ -10,17 +10,51 @@
     <style>
         .nav-icon-btn { position:relative; background:none; border:none; color:#fff; cursor:pointer; padding:4px 8px; font-size:1.3rem; }
         .badge-notif { position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; border-radius:50%; width:18px; height:18px; font-size:0.65rem; display:flex; align-items:center; justify-content:center; font-weight:900; }
-        /* MODAL CARRITO */
         .carrito-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; }
-        .carrito-panel { position:fixed; right:0; top:0; height:100%; width:360px; background:#0f172a; border-left:1px solid rgba(6,182,212,0.3); padding:30px 20px; overflow-y:auto; z-index:10000; transform:translateX(100%); transition:transform 0.3s ease; }
+        .carrito-panel { position:fixed; right:0; top:0; height:100%; width:380px; background:#0f172a; border-left:1px solid rgba(6,182,212,0.3); padding:30px 20px; overflow-y:auto; z-index:10000; transform:translateX(100%); transition:transform 0.3s ease; display:flex; flex-direction:column; }
         .carrito-panel.open { transform:translateX(0); }
-        .carrito-item { background:#1e293b; border-radius:10px; padding:12px 15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
-        .carrito-item h6 { color:#fff; margin:0; font-weight:700; }
-        .carrito-item span { color:#f97316; font-weight:800; }
-        .btn-quitar { background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer; }
+        .carrito-item { background:#1e293b; border-radius:10px; padding:12px 15px; margin-bottom:10px; }
+        .carrito-item h6 { color:#fff; margin:0 0 4px; font-weight:700; }
+        .carrito-item-precio { color:#f97316; font-weight:800; }
+        .qty-control { display:flex; align-items:center; gap:10px; margin-top:8px; }
+        .qty-btn { background:#374151; color:#fff; border:none; width:28px; height:28px; border-radius:6px; font-weight:900; cursor:pointer; transition:0.2s; }
+        .qty-btn:hover { background:#06b6d4; }
+        .qty-num { color:#fff; font-weight:800; min-width:24px; text-align:center; }
+        .btn-quitar { background:none; border:none; color:#ef4444; font-size:0.95rem; cursor:pointer; margin-left:auto; }
         .carrito-total { border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:10px; color:#fff; font-weight:900; font-size:1.1rem; }
         .btn-agregar-carrito { background:#f97316; color:#fff; border:none; border-radius:6px; padding:8px 16px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.3s; margin-top:8px; width:100%; }
         .btn-agregar-carrito:hover { background:#06b6d4; }
+        .btn-confirmar-compra { background:#10b981; color:#fff; border:none; border-radius:8px; padding:12px; font-weight:800; cursor:pointer; transition:0.3s; width:100%; margin-top:15px; }
+        .btn-confirmar-compra:hover { background:#059669; }
+        .msg-confirmacion { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#6ee7b7; border-radius:8px; padding:12px; margin-top:12px; font-size:0.85rem; text-align:center; display:none; }
+        /* Tarjeta de contacto debajo del mapa */
+        .contacto-box-home { max-width:520px; margin:35px auto 0; background:#0f172a; border:1px solid rgba(6,182,212,0.3); border-radius:16px; padding:30px 25px; text-align:center; }
+        .contacto-box-home .icono { font-size:2.2rem; margin-bottom:8px; }
+        .contacto-box-home h4 { color:#fff; font-weight:900; margin-bottom:10px; }
+        .contacto-box-home p { color:#9ca3af; margin-bottom:6px; font-size:0.92rem; }
+        .contacto-box-home .whatsapp-nota { color:#6ee7b7; font-size:0.88rem; margin-bottom:20px; }
+        .contacto-box-home .whatsapp-nota a { color:#25D366; font-weight:700; text-decoration:none; }
+        .sin-sesion-botones { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+        /* Modal de selección de tallas / metros */
+        .modal-tallas-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10500; align-items:center; justify-content:center; }
+        .modal-tallas-overlay.open { display:flex; }
+        .modal-tallas-box { background:#0f172a; border:1px solid rgba(6,182,212,0.3); border-radius:14px; padding:25px; width:90%; max-width:460px; max-height:85vh; overflow-y:auto; }
+        .modal-tallas-box h5 { color:#f97316; font-family:'Bangers'; letter-spacing:1px; margin-bottom:4px; }
+        .modal-tallas-box .sub { color:#9ca3af; font-size:0.85rem; margin-bottom:16px; }
+        .grid-tallas { display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:16px; }
+        .talla-item { background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px 4px; text-align:center; }
+        .talla-item label { color:#fff; font-size:0.78rem; font-weight:700; display:block; margin-bottom:4px; }
+        .talla-item input { width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:6px; text-align:center; padding:4px; font-size:0.85rem; }
+        .metros-box { background:#1e293b; border-radius:10px; padding:16px; margin-bottom:16px; }
+        .metros-box label { color:#fff; font-weight:700; display:block; margin-bottom:8px; }
+        .metros-box input { width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.15); color:#fff; border-radius:8px; padding:10px; font-size:1rem; }
+        .metros-box .nota { color:#6ee7b7; font-size:0.78rem; margin-top:8px; }
+        .modal-tallas-total { color:#fff; font-weight:800; text-align:center; margin-bottom:14px; font-size:1.05rem; }
+        .modal-tallas-total span { color:#f97316; }
+        .modal-tallas-botones { display:flex; gap:10px; }
+        .btn-modal-cancelar { flex:1; background:#374151; color:#fff; border:none; border-radius:8px; padding:10px; font-weight:700; cursor:pointer; }
+        .btn-modal-agregar { flex:2; background:#f97316; color:#fff; border:none; border-radius:8px; padding:10px; font-weight:800; cursor:pointer; }
+        .btn-modal-agregar:hover { background:#06b6d4; }
     </style>
 </head>
 <body>
@@ -43,6 +77,9 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('contactanos') }}">Contáctanos</a></li>
                 {% if nombre %}
                 <li class="nav-item ms-2">
+                    <a href="{{ url_for('mis_compras') }}" class="nav-icon-btn" title="Mis compras" style="font-size:1.15rem;">📦</a>
+                </li>
+                <li class="nav-item ms-1">
                     <button class="nav-icon-btn" onclick="abrirCarrito()" title="Carrito">
                         🛒
                         <span class="badge-notif" id="badgeCarrito" style="{{ 'display:none' if total_items == 0 else '' }}">{{ total_items }}</span>
@@ -77,9 +114,37 @@
         <h4 style="color:#f97316; font-family:'Bangers'; letter-spacing:2px; margin:0;">🛒 Mi Carrito</h4>
         <button onclick="cerrarCarrito()" style="background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer;">✕</button>
     </div>
-    <div id="carritoItems"><p style="color:#9ca3af; text-align:center; margin-top:40px;">Tu carrito está vacío</p></div>
-    <div class="carrito-total" id="carritoTotal" style="display:none;">
-        Total: <span id="totalPrecio" style="color:#f97316;">S/ 0</span>
+    <div id="carritoItems" style="flex:1; overflow-y:auto;"><p style="color:#9ca3af; text-align:center; margin-top:40px;">Tu carrito está vacío</p></div>
+    <div>
+        <div class="carrito-total" id="carritoTotal" style="display:none;">
+            Total: <span id="totalPrecio" style="color:#f97316;">S/ 0</span>
+        </div>
+        <button class="btn-confirmar-compra" id="btnConfirmar" style="display:none;" onclick="confirmarCompra()">✅ Confirmar compra</button>
+        <div class="msg-confirmacion" id="msgConfirmacion"></div>
+    </div>
+</div>
+
+<!-- MODAL TALLAS / METROS -->
+<div class="modal-tallas-overlay" id="modalTallasOverlay">
+    <div class="modal-tallas-box">
+        <h5 id="modalTallasTitulo">Camiseta</h5>
+        <p class="sub" id="modalTallasSub">Elige la talla y la cantidad que quieras de cada una</p>
+
+        <!-- Para productos con tallas -->
+        <div id="contGridTallas" class="grid-tallas"></div>
+
+        <!-- Para banderola (por metros) -->
+        <div id="contMetros" class="metros-box" style="display:none;">
+            <label>¿Cuántos metros de ancho quieres? (la tela siempre mide 1.50m de alto)</label>
+            <input type="number" id="inputMetros" min="0.5" max="100" step="0.5" placeholder="Ej: 2.5" oninput="actualizarTotalModal()">
+            <p class="nota">Mínimo 0.5m — Máximo 100m (el rollo de tela da hasta 100m de largo)</p>
+        </div>
+
+        <div class="modal-tallas-total">Total: <span id="modalTallasTotalTxt">S/ 0</span></div>
+        <div class="modal-tallas-botones">
+            <button class="btn-modal-cancelar" onclick="cerrarModalTallas()">Cancelar</button>
+            <button class="btn-modal-agregar" onclick="confirmarAgregarConTallas()">🛒 Agregar al carrito</button>
+        </div>
     </div>
 </div>
 
@@ -107,44 +172,33 @@
         <h2 class="text-center mb-5">Catálogo Deportivo</h2>
         <div class="row g-4">
             {% set productos = [
-                ('CAMISETA.jpg', 'Camiseta', 9, 'Camiseta sublimada'),
-                ('CAMISETA_Y_SHORT.jpg', 'Camiseta + Short', 16, 'Conjunto deportivo'),
-                ('BIVIDI.jpg', 'Bividi', 8, 'Bividi sublimado'),
+                ('CAMISETA.jpg', 'Camiseta', 30, 'Camiseta sublimada'),
+                ('CAMISETA_Y_SHORT.jpg', 'Camiseta + Short + Medias', 55, 'Conjunto deportivo completo'),
+                ('BIVIDI.jpg', 'Bividi', 20, 'Bividi sublimado'),
+                ('SHORT.jpg', 'Short', 20, 'Short sublimado'),
             ] %}
             {% for img, nombre_p, precio, alt in productos %}
-            <div class="col-md-4">
+            <div class="col-md-6 col-lg-3">
                 <div class="card h-100 shadow-sm border-0">
                     <img src="{{ url_for('static', filename='img/' + img) }}" class="card-img-top" alt="{{ alt }}">
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ nombre_p }}</h5>
-                        <p class="precio">Precio: S/ {{ precio }}</p>
+                        <p class="precio">Precio: S/ {{ precio }} (por talla)</p>
                         {% if nombre %}
-                        <button class="btn-agregar-carrito" onclick="agregarCarrito('{{ nombre_p }}', {{ precio }})">🛒 Agregar al carrito</button>
+                        <button class="btn-agregar-carrito" onclick="abrirModalTallas('{{ nombre_p }}', {{ precio }})">🛒 Agregar al carrito</button>
                         {% endif %}
                     </div>
                 </div>
             </div>
             {% endfor %}
-            <div class="col-md-6">
-                <div class="card h-100 shadow-sm border-0">
-                    <img src="{{ url_for('static', filename='img/SHORT.jpg') }}" class="card-img-top" alt="Short sublimado">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Short</h5>
-                        <p class="precio">Precio: S/ 7</p>
-                        {% if nombre %}
-                        <button class="btn-agregar-carrito" onclick="agregarCarrito('Short', 7)">🛒 Agregar al carrito</button>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
+            <div class="col-md-6 col-lg-3">
                 <div class="card h-100 shadow-sm border-0">
                     <img src="{{ url_for('static', filename='img/BANDEROLA.jpg') }}" class="card-img-top" alt="Banderola sublimada">
                     <div class="card-body text-center">
                         <h5 class="card-title">Banderola</h5>
-                        <p class="precio">Precio: S/ 15</p>
+                        <p class="precio">Precio: S/ 40 por metro (alto fijo 1.50m)</p>
                         {% if nombre %}
-                        <button class="btn-agregar-carrito" onclick="agregarCarrito('Banderola', 15)">🛒 Agregar al carrito</button>
+                        <button class="btn-agregar-carrito" onclick="abrirModalBanderola()">🛒 Agregar al carrito</button>
                         {% endif %}
                     </div>
                 </div>
@@ -162,9 +216,28 @@
 <section class="py-5" id="ubicacion">
     <div class="container">
         <h2 class="text-center mb-5">Ubicación</h2>
-        <p class="text-center mb-4">Encuéntranos en Gamarra, La Victoria, Edificio "Pigas" puesto número 410.</p>
+        <p class="text-center mb-4">Encuéntranos en Gamarra, La Victoria — Centro Comercial Guizado (Galería azul 4 pisos "Piga"), Av. Aviación 332, puesto número 410 cuarto piso.</p>
         <div class="ratio ratio-16x9 shadow rounded overflow-hidden">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7803.326538526856!2d-77.01995375480536!3d-12.06667386087673!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c89ec2a832cf%3A0x64b6a4e4b20a589d!2sGamarra%2C%20La%20Victoria%2015018!5e0!3m2!1ses-419!2spe!4v1777979485366!5m2!1ses-419!2spe" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            <iframe src="https://www.google.com/maps?q=Wampar+Sport,+Av.+Aviaci%C3%B3n+332,+La+Victoria,+Lima&output=embed" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+
+        <div class="contacto-box-home">
+            <div class="icono">✉️</div>
+            <h4>¿Quieres contactarnos?</h4>
+            {% if nombre %}
+            <p>Escríbenos directamente desde tu cuenta y te responderemos pronto.</p>
+            <p class="whatsapp-nota">O si prefieres, contáctanos por WhatsApp al <a href="https://wa.me/51988566508" target="_blank">988 566 508</a>.</p>
+            <div class="sin-sesion-botones">
+                <a href="{{ url_for('contactanos') }}" class="btn-banner" style="background:#f97316;">Ir a Contáctanos</a>
+            </div>
+            {% else %}
+            <p>Para enviarnos un mensaje necesitas tener una cuenta en Wampar Sport. Es rápido y gratuito.</p>
+            <p class="whatsapp-nota">O también puedes contactarnos directamente por WhatsApp al <a href="https://wa.me/51988566508" target="_blank">988 566 508</a>.</p>
+            <div class="sin-sesion-botones">
+                <a href="{{ url_for('registro') }}" class="btn-banner" style="background:#f97316;">Crear cuenta</a>
+                <a href="{{ url_for('login') }}" class="btn-banner" style="background:transparent; border:1px solid #06b6d4; color:#06b6d4;">Ya tengo cuenta</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -180,7 +253,6 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 {% if nombre %}
-// ── CARRITO ──
 function abrirCarrito() {
     document.getElementById("carritoOverlay").style.display = "block";
     document.getElementById("carritoPanel").classList.add("open");
@@ -196,61 +268,180 @@ function cargarCarrito() {
     .then(items => {
         const cont = document.getElementById("carritoItems");
         const totDiv = document.getElementById("carritoTotal");
+        const btnConfirmar = document.getElementById("btnConfirmar");
+        document.getElementById("msgConfirmacion").style.display = "none";
         if (!items.length) {
             cont.innerHTML = '<p style="color:#9ca3af;text-align:center;margin-top:40px;">Tu carrito está vacío</p>';
-            totDiv.style.display = "none"; return;
+            totDiv.style.display = "none";
+            btnConfirmar.style.display = "none";
+            return;
         }
         let html = "", total = 0;
         items.forEach(item => {
             total += item.precio * item.cantidad;
+            const detalle = item.detalle ? `<div style="color:#9ca3af; font-size:0.8rem; margin-top:2px;">${item.detalle}</div>` : "";
             html += `<div class="carrito-item">
-                <div>
-                    <h6>${item.producto}</h6>
-                    <small style="color:#9ca3af;">Cantidad: ${item.cantidad}</small>
+                <div style="display:flex; justify-content:space-between;">
+                    <div>
+                        <h6 style="margin-bottom:0;">${item.producto}</h6>
+                        ${detalle}
+                    </div>
+                    <button class="btn-quitar" onclick="quitarItem(${item.id})">🗑️</button>
                 </div>
-                <div style="text-align:right;">
-                    <span>S/ ${item.precio * item.cantidad}</span><br>
-                    <button class="btn-quitar" onclick="quitarItem('${item.producto}')">🗑️</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="cambiarCantidad(${item.id}, 'restar')">−</button>
+                        <span class="qty-num">${item.cantidad}</span>
+                        <button class="qty-btn" onclick="cambiarCantidad(${item.id}, 'sumar')">+</button>
+                    </div>
+                    <span class="carrito-item-precio">S/ ${(item.precio * item.cantidad).toFixed(2)}</span>
                 </div>
             </div>`;
         });
         cont.innerHTML = html;
-        document.getElementById("totalPrecio").textContent = "S/ " + total;
+        document.getElementById("totalPrecio").textContent = "S/ " + total.toFixed(2);
         totDiv.style.display = "block";
+        btnConfirmar.style.display = "block";
     });
 }
-function agregarCarrito(producto, precio) {
+
+// ── MODAL DE TALLAS (camiseta, camiseta+short+medias, bividi, short) ──
+const TALLAS = ["2","4","6","8","10","12","14","16","S","M","L","XL","XXL","XXXL"];
+let modalProductoActual = null;
+let modalPrecioActual = 0;
+let modalEsBanderola = false;
+
+function abrirModalTallas(producto, precio) {
+    modalProductoActual = producto;
+    modalPrecioActual = precio;
+    modalEsBanderola = false;
+    document.getElementById("modalTallasTitulo").textContent = producto;
+    document.getElementById("modalTallasSub").textContent = "Elige la talla y la cantidad que quieras de cada una";
+    document.getElementById("contMetros").style.display = "none";
+    const grid = document.getElementById("contGridTallas");
+    grid.style.display = "grid";
+    grid.innerHTML = TALLAS.map(t => `
+        <div class="talla-item">
+            <label>${t}</label>
+            <input type="number" min="0" value="0" data-talla="${t}" oninput="actualizarTotalModal()">
+        </div>
+    `).join("");
+    document.getElementById("modalTallasTotalTxt").textContent = "S/ 0";
+    document.getElementById("modalTallasOverlay").classList.add("open");
+}
+
+function abrirModalBanderola() {
+    modalProductoActual = "Banderola";
+    modalPrecioActual = 40;
+    modalEsBanderola = true;
+    document.getElementById("modalTallasTitulo").textContent = "Banderola";
+    document.getElementById("modalTallasSub").textContent = "Indica el ancho en metros (alto fijo 1.50m)";
+    document.getElementById("contGridTallas").style.display = "none";
+    document.getElementById("contGridTallas").innerHTML = "";
+    document.getElementById("contMetros").style.display = "block";
+    document.getElementById("inputMetros").value = "";
+    document.getElementById("modalTallasTotalTxt").textContent = "S/ 0";
+    document.getElementById("modalTallasOverlay").classList.add("open");
+}
+
+function cerrarModalTallas() {
+    document.getElementById("modalTallasOverlay").classList.remove("open");
+}
+
+function actualizarTotalModal() {
+    let total = 0;
+    if (modalEsBanderola) {
+        const metros = parseFloat(document.getElementById("inputMetros").value) || 0;
+        total = metros * modalPrecioActual;
+    } else {
+        document.querySelectorAll("#contGridTallas input").forEach(inp => {
+            total += (parseInt(inp.value) || 0) * modalPrecioActual;
+        });
+    }
+    document.getElementById("modalTallasTotalTxt").textContent = "S/ " + total.toFixed(2);
+}
+
+function confirmarAgregarConTallas() {
+    if (modalEsBanderola) {
+        const metros = parseFloat(document.getElementById("inputMetros").value);
+        if (!metros || metros <= 0) { alert("Ingresa una cantidad de metros válida."); return; }
+        if (metros > 100) { alert("El máximo son 100 metros."); return; }
+        fetch("/api/carrito/agregar", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({producto: "Banderola", metros})
+        }).then(r => r.json()).then(d => manejarRespuestaAgregar(d));
+        return;
+    }
+    const tallas = {};
+    let hayAlgo = false;
+    document.querySelectorAll("#contGridTallas input").forEach(inp => {
+        const cant = parseInt(inp.value) || 0;
+        if (cant > 0) { tallas[inp.dataset.talla] = cant; hayAlgo = true; }
+    });
+    if (!hayAlgo) { alert("Selecciona al menos una talla y cantidad."); return; }
     fetch("/api/carrito/agregar", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({producto, precio})
-    })
-    .then(r => r.json())
-    .then(d => {
-        if (d.success) {
-            const badge = document.getElementById("badgeCarrito");
-            badge.textContent = d.total;
-            badge.style.display = "flex";
-            abrirCarrito();
-        } else { alert(d.mensaje || "Debes iniciar sesión."); }
-    });
+        body: JSON.stringify({producto: modalProductoActual, tallas})
+    }).then(r => r.json()).then(d => manejarRespuestaAgregar(d));
 }
-function quitarItem(producto) {
+
+function manejarRespuestaAgregar(d) {
+    if (d.success) {
+        const badge = document.getElementById("badgeCarrito");
+        badge.textContent = d.total;
+        badge.style.display = "flex";
+        cerrarModalTallas();
+        abrirCarrito();
+    } else {
+        alert(d.mensaje || "No se pudo agregar al carrito.");
+    }
+}
+
+function cambiarCantidad(id, accion) {
+    fetch("/api/carrito/cantidad", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id, accion})
+    }).then(r => r.json()).then(() => { cargarCarrito(); actualizarBadge(); });
+}
+function quitarItem(id) {
     fetch("/api/carrito/eliminar", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({producto})
-    }).then(r => r.json()).then(() => cargarCarrito());
+        body: JSON.stringify({id})
+    }).then(r => r.json()).then(() => { cargarCarrito(); actualizarBadge(); });
 }
-// ── NOTIFICACIONES ──
+function actualizarBadge() {
+    fetch("/api/carrito/obtener")
+    .then(r => r.json())
+    .then(items => {
+        const total = items.reduce((s, i) => s + i.cantidad, 0);
+        const badge = document.getElementById("badgeCarrito");
+        if (total > 0) { badge.textContent = total; badge.style.display = "flex"; }
+        else { badge.style.display = "none"; }
+    });
+}
+function confirmarCompra() {
+    fetch("/api/carrito/confirmar", { method: "POST" })
+    .then(r => r.json())
+    .then(d => {
+        const msg = document.getElementById("msgConfirmacion");
+        msg.innerHTML = d.mensaje + (d.success ? ' <a href="/mis-compras" style="color:#06b6d4; font-weight:700;">Ver mis compras →</a>' : '');
+        msg.style.display = "block";
+        if (d.success) {
+            setTimeout(() => {
+                document.getElementById("badgeCarrito").style.display = "none";
+                cargarCarrito();
+            }, 1500);
+        }
+    });
+}
 setInterval(() => {
     fetch("/api/mensajes/nuevos")
     .then(r => r.json())
-    .then(d => {
-        if (d.count > 0) {
-            document.title = `(${d.count}) Wampar Sport`;
-        }
-    });
+    .then(d => { if (d.count > 0) document.title = `(${d.count}) Wampar Sport`; });
 }, 10000);
 {% endif %}
 </script>

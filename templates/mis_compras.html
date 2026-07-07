@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Compras - Wampar Sport</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}">
+    <style>
+        body { padding-top: 100px; }
+        .compras-container { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+        .compras-titulo { font-family:'Bangers'; color:#f97316; font-size:2.2rem; letter-spacing:2px; margin-bottom:8px; }
+        .compras-subtitulo { color:#9ca3af; margin-bottom:30px; }
+
+        .pedido-card-u { background:#111827; border:1px solid rgba(6,182,212,0.2); border-radius:14px; margin-bottom:20px; overflow:hidden; }
+        .pedido-header-u { padding:16px 22px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .pedido-header-u .fecha-u { color:#9ca3af; font-size:0.85rem; }
+        .pedido-header-u .total-u { color:#10b981; font-weight:900; font-size:1.05rem; }
+
+        .compra-info-row { padding:14px 22px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.04); }
+        .compra-info-row:last-child { border-bottom:none; }
+        .compra-info h5 { color:#fff; font-weight:800; margin:0 0 4px; font-size:1rem; }
+        .compra-info p { color:#9ca3af; font-size:0.83rem; margin:0; }
+        .compra-precio { color:#f97316; font-weight:900; font-size:1.05rem; min-width:80px; text-align:right; }
+
+        .qty-control-u { display:flex; align-items:center; gap:8px; background:#1e293b; border-radius:8px; padding:4px 8px; }
+        .qty-btn-u { background:#374151; border:none; color:#fff; width:24px; height:24px; border-radius:6px; font-weight:800; cursor:pointer; }
+        .qty-btn-u:hover { background:#06b6d4; }
+
+        .pill-estado { padding:7px 16px; border-radius:20px; font-size:0.82rem; font-weight:800; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+        .pill-pendiente-u { background:rgba(249,115,22,0.15); color:#fdba74; border:1px solid rgba(249,115,22,0.4); }
+        .pill-entregado-u { background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); }
+        .pill-esperando-u { background:rgba(6,182,212,0.15); color:#67e8f9; border:1px solid rgba(6,182,212,0.4); }
+        .pill-aceptado-u  { background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); }
+        .pill-rechazado-u { background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); }
+
+        .aviso-modificable { background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3); color:#67e8f9; border-radius:10px; padding:10px 16px; margin:14px 22px 0; font-size:0.83rem; }
+        .aviso-aceptado { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#6ee7b7; border-radius:10px; padding:10px 16px; margin:14px 22px 0; font-size:0.83rem; }
+        .aviso-rechazado { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; border-radius:10px; padding:10px 16px; margin:14px 22px 0; font-size:0.83rem; }
+
+        .pedido-footer-u { padding:14px 22px; display:flex; justify-content:flex-end; gap:10px; }
+        .btn-cancelar-pedido { background:#7f1d1d; color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px; padding:8px 16px; font-weight:700; font-size:0.85rem; cursor:pointer; transition:0.2s; }
+        .btn-cancelar-pedido:hover { background:#991b1b; color:#fff; }
+        .btn-quitar-u { background:none; border:none; color:#ef4444; font-size:0.95rem; cursor:pointer; }
+
+        .empty-compras { text-align:center; padding:60px 20px; color:#4b5563; }
+        .empty-compras p:first-child { font-size:3rem; margin-bottom:10px; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light fixed-top custom-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo" class="logo-navbar">
+        </a>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span style="color:#06b6d4; font-weight:700;">Hola, {{ nombre }}</span>
+            <a href="{{ url_for('index') }}" style="color:#9ca3af; text-decoration:none; font-size:0.9rem;">← Volver</a>
+            <a href="{{ url_for('logout') }}" class="btn-banner" style="padding:7px 16px; font-size:0.82rem;">Salir</a>
+        </div>
+    </div>
+</nav>
+
+<div class="compras-container">
+    <h2 class="compras-titulo">📦 Mis Compras</h2>
+    <p class="compras-subtitulo">Aquí puedes ver el estado de tus pedidos y de entrega de tus productos.</p>
+
+    {% if not pedidos %}
+    <div class="empty-compras">
+        <p>🛍️</p>
+        <p style="font-size:0.95rem;">Aún no has realizado ningún pedido.</p>
+        <a href="{{ url_for('index') }}#catalogo" style="color:#f97316; font-weight:700;">Ver catálogo →</a>
+    </div>
+    {% else %}
+    {% for p in pedidos %}
+    <div class="pedido-card-u" data-pedido-id="{{ p.clave }}">
+        <div class="pedido-header-u">
+            <div class="fecha-u">📅 {{ p.fecha }}</div>
+            {% if p.estado == 'esperando_aprobacion' %}
+            <span class="pill-estado pill-esperando-u">⏳ Esperando aprobación de la tienda</span>
+            {% elif p.estado == 'aceptado' %}
+            <span class="pill-estado pill-aceptado-u">✅ Pedido aceptado</span>
+            {% elif p.estado == 'rechazado' %}
+            <span class="pill-estado pill-rechazado-u">❌ Pedido no aceptado</span>
+            {% endif %}
+            <div class="total-u">Total: S/ {{ "%.2f"|format(p.total) }}</div>
+        </div>
+
+        {% for c in p.productos %}
+        <div class="compra-info-row" data-item-id="{{ c.id }}">
+            <div class="compra-info">
+                <h5>{{ c.producto }}</h5>
+                <p>{% if c.producto == 'Banderola' %}{{ c.detalle }}{% else %}{% if c.detalle %}{{ c.detalle }} &nbsp;·&nbsp; {% endif %}Cantidad: {{ c.cantidad }}{% endif %}</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div class="compra-precio">S/ {{ "%.2f"|format(c.precio * c.cantidad) }}</div>
+                {% if p.estado == 'esperando_aprobacion' %}
+                <div class="qty-control-u">
+                    <button class="qty-btn-u" onclick="modificarItemPedido({{ c.id }}, 'restar')">−</button>
+                    <span style="color:#fff; font-weight:700; min-width:20px; text-align:center;">{{ c.cantidad }}</span>
+                    <button class="qty-btn-u" onclick="modificarItemPedido({{ c.id }}, 'sumar')">+</button>
+                </div>
+                {% else %}
+                {% if c.entrega == 'entregado' %}
+                <span class="pill-estado pill-entregado-u">✅ Entregado</span>
+                {% else %}
+                <span class="pill-estado pill-pendiente-u">⏳ En proceso</span>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if p.estado == 'esperando_aprobacion' %}
+        <div class="aviso-modificable">
+            ℹ️ Puedes modificar las cantidades o cancelar este pedido mientras la tienda no lo haya aceptado todavía.
+        </div>
+        <div class="pedido-footer-u">
+            <button class="btn-cancelar-pedido" onclick="cancelarPedido('{{ p.clave }}')">🗑️ Cancelar este pedido</button>
+        </div>
+        {% elif p.estado == 'aceptado' %}
+        <div class="aviso-aceptado">
+            ✅ Este pedido ya fue aceptado por la tienda — ya no se puede modificar desde tu cuenta. Si necesitas un cambio, escríbenos por <a href="{{ url_for('contactanos') }}" style="color:#67e8f9; font-weight:700;">Contáctanos</a>.
+        </div>
+        {% elif p.estado == 'rechazado' %}
+        <div class="aviso-rechazado">
+            ❌ Este pedido no fue aceptado por la tienda. Si tienes dudas, escríbenos por <a href="{{ url_for('contactanos') }}" style="color:#fca5a5; font-weight:700;">Contáctanos</a>.
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function modificarItemPedido(id, accion) {
+    fetch("/api/pedido/modificar_cantidad", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({id, accion})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) { location.reload(); }
+        else { alert(d.mensaje || "No se pudo modificar."); location.reload(); }
+    });
+}
+function cancelarPedido(pedidoId) {
+    if (!confirm("¿Seguro que quieres cancelar este pedido completo? Esta acción no se puede deshacer.")) return;
+    fetch("/api/pedido/cancelar", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({pedido_id: pedidoId})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) { location.reload(); }
+        else { alert(d.mensaje || "No se pudo cancelar."); location.reload(); }
+    });
+}
+</script>
+</body>
+</html>

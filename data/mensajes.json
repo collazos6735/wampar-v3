@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": 1,
+    "de": "admin",
+    "nombre": "Wampar Sport",
+    "para": "prueba@test.com",
+    "texto": "✅ Tu pedido ya fue aceptado por la tienda. Ya no podrás modificarlo desde tu cuenta — si necesitas un cambio, escríbenos por este chat.",
+    "imagen": null,
+    "fecha": "2026-07-06 17:41",
+    "leido": false
+  }
+]
